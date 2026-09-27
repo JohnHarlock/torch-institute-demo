@@ -1,0 +1,1360 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Torch Institute · Demo de la plataforma de alumnos</title>
+<meta name="description" content="Demo de la plataforma de alumnos de Torch Institute, escuela de soldadura TIG en Gelves (Sevilla): matrícula y pago online, aula con clases grabadas, homologación CESOL y panel de gestión. Propuesta de John Martin. Acceso con contraseña.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://johnharlock.github.io/torch-institute-demo/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://johnharlock.github.io/torch-institute-demo/">
+<meta property="og:title" content="Torch Institute · Demo de la plataforma de alumnos">
+<meta property="og:description" content="Matrícula y pago online, aula de soldadura TIG, homologación CESOL y panel de gestión. Demo con acceso por contraseña.">
+<meta name="author" content="John Martin Padua">
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#EEF0F2; --surface:#FFFFFF; --surface-2:#F6F7F8; --line:#DADEE3; --line-strong:#C3C9D0;
+  --ink:#14171B; --muted:#5A616C; --faint:#8A919B;
+  --accent:#E8962E; --accent-ink:#8F4F06; --accent-soft:#FBEAD3; --on-accent:#1A1206;
+  --good:#1D7F54; --good-soft:#DDF2E7; --warn:#9A6408; --warn-soft:#FBEFD6; --crit:#B83A33; --crit-soft:#F8E0DE;
+  --info:#2F62A3; --info-soft:#E1EAF6;
+  --c-in:#C0700E; --c-out:#3D6FB0; --grid:#E6E9ED;
+  --shadow:0 1px 2px rgba(20,23,27,.06),0 8px 24px rgba(20,23,27,.06);
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#101215; --surface:#1A1D21; --surface-2:#21252A; --line:#2E333A; --line-strong:#3E444C;
+    --ink:#ECEAE6; --muted:#A0A6AF; --faint:#747B85;
+    --accent:#E8962E; --accent-ink:#F2AD55; --accent-soft:#3A2A15; --on-accent:#1A1206;
+    --good:#4CC38A; --good-soft:#15302A; --warn:#E3A847; --warn-soft:#352A14; --crit:#F0736A; --crit-soft:#3A1D1C;
+    --info:#7FAAE3; --info-soft:#1B2738;
+    --c-in:#C97A1A; --c-out:#5B8FD1; --grid:#262A30;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#101215; --surface:#1A1D21; --surface-2:#21252A; --line:#2E333A; --line-strong:#3E444C;
+  --ink:#ECEAE6; --muted:#A0A6AF; --faint:#747B85;
+  --accent:#E8962E; --accent-ink:#F2AD55; --accent-soft:#3A2A15; --on-accent:#1A1206;
+  --good:#4CC38A; --good-soft:#15302A; --warn:#E3A847; --warn-soft:#352A14; --crit:#F0736A; --crit-soft:#3A1D1C;
+  --info:#7FAAE3; --info-soft:#1B2738;
+  --c-in:#C97A1A; --c-out:#5B8FD1; --grid:#262A30;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);margin:0}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;line-height:1.1;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,5vw,42px)} h2{font-size:26px} h3{font-size:20px}
+p{margin:0}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:.9em}
+.eyebrow{font:600 12px/1.2 var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.mark{width:30px;height:30px;border-radius:7px;background:var(--ink);position:relative;flex:none}
+.mark::after{content:"";position:absolute;left:8px;top:13px;width:14px;height:4px;border-radius:2px;background:var(--accent);box-shadow:0 0 10px 2px rgba(232,150,46,.55)}
+.brand b{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:.08em}
+.brand small{display:block;font-size:11.5px;color:var(--muted);letter-spacing:.02em;margin-top:-2px}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.linkbtn{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
+.demo-note{background:var(--accent-soft);color:var(--ink);font-size:13.5px}
+.demo-note div{max-width:1180px;margin:0 auto;padding:8px 16px}
+
+main{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:24px 64px}
+
+/* shared */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:9px;padding:10px 18px;font-weight:600;cursor:pointer;border:1px solid var(--line-strong);background:var(--surface);text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.small{padding:6px 12px;font-size:13.5px;border-radius:8px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.p-good{background:var(--good-soft);color:var(--good)} .p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-info{background:var(--info-soft);color:var(--info)} .p-crit{background:var(--crit-soft);color:var(--crit)}
+.p-neutral{background:var(--surface-2);color:var(--muted)}
+.chip{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:5px;border:1px solid var(--line-strong);color:var(--muted);white-space:nowrap}
+.chip.adv{border-color:var(--accent);color:var(--accent-ink)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:500;color:var(--muted)}
+.field input,.field select{border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:9px 11px;min-width:0;width:100%}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.check input{margin-top:4px;accent-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2)}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+tr.is-new td{background:var(--accent-soft)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:60;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+
+/* student: steps */
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-block:18px 22px;list-style:none;padding:0}
+.steps li{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--faint);padding:6px 12px 6px 6px;border-radius:999px;border:1px solid var(--line)}
+.steps li span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;background:var(--surface-2);color:var(--muted)}
+.steps li.on{color:var(--ink);border-color:var(--ink)} .steps li.on span{background:var(--ink);color:var(--bg)}
+.steps li.done span{background:var(--accent);color:var(--on-accent)}
+.hero{display:grid;gap:8px;max-width:720px}
+.hero p{color:var(--muted);font-size:16px}
+.courses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-block:20px}
+@media (max-width:720px){.courses{grid-template-columns:1fr}}
+.course{position:relative;text-align:left;cursor:pointer;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:18px 18px 16px;display:grid;gap:8px}
+.course[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.course .price{font-family:var(--display);font-size:30px;font-weight:600}
+.course .price small{font-family:var(--sans);font-size:13px;color:var(--muted);font-weight:400;margin-left:6px}
+.course ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px}
+.weeks{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px}
+.week{cursor:pointer;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:6px}
+.week:hover:not([disabled]){border-color:var(--line-strong)}
+.week[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.week[disabled]{cursor:not-allowed;opacity:.55}
+.week b{font-weight:600}
+.seats{display:flex;gap:5px}
+.seat{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line-strong)}
+.seat.taken{background:var(--muted);border-color:var(--muted)}
+.seat.you{background:var(--accent);border-color:var(--accent)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;align-items:center}
+.layout-2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.layout-2{grid-template-columns:1fr}}
+.summary dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:14px 0 0;font-size:14px}
+.summary dt{color:var(--muted)} .summary dd{margin:0;text-align:right}
+.summary .total{border-top:1px solid var(--line);padding-top:10px;font-weight:600}
+.stripe{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.stripe-head{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--surface-2);font-size:13px;color:var(--muted)}
+.stripe-body{padding:18px;display:grid;gap:12px}
+.cardrow{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+@media (max-width:480px){.cardrow{grid-template-columns:1fr 1fr}.cardrow .field:first-child{grid-column:1/-1}}
+.spinner{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spinner{animation:none}}
+
+/* student area */
+.area-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:18px}
+.ticket{display:flex;gap:18px;flex-wrap:wrap;background:var(--ink);color:var(--bg);border-radius:12px;padding:18px 20px}
+.ticket div{display:grid;gap:2px;min-width:120px}
+.ticket span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.ticket b{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:.02em}
+.tasks{list-style:none;margin:0;padding:0;display:grid}
+.tasks li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.tasks li:last-child{border-bottom:0}
+.tick{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--good-soft);color:var(--good);font-size:13px;font-weight:700}
+.tick.wait{background:var(--surface-2);color:var(--faint)}
+.tasks .txt{flex:1;min-width:0} .tasks .txt small{display:block;color:var(--muted);font-size:13px}
+.plans{display:grid;gap:10px;margin-top:14px}
+.plan{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.plan:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.plan.off{opacity:.5;cursor:not-allowed}
+.plan input{margin-top:4px;accent-color:var(--accent)}
+.plan b{display:block} .plan small{color:var(--muted);font-size:13px;display:block}
+.sched{margin-top:12px;font-size:13.5px;border-top:1px dashed var(--line-strong);padding-top:10px;display:grid;gap:4px}
+.sched div{display:flex;justify-content:space-between}
+.module{display:grid;gap:12px}
+.block{border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.block h3{font-size:18px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.lesson{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:14px;border-top:1px solid var(--line)}
+.lesson:first-of-type{border-top:0}
+.lesson input{margin-top:4px;accent-color:var(--accent)}
+.lesson small{color:var(--muted)}
+.progress{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.locked{border:1px dashed var(--line-strong);border-radius:12px;padding:28px;text-align:center;color:var(--muted)}
+
+/* panel */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-block:18px 20px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 14px;cursor:pointer;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px}
+.kpi b{font-family:var(--display);font-size:30px;font-weight:600;line-height:1.1}
+.kpi small{color:var(--muted);font-size:12.5px}
+.row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-top:16px}
+@media (max-width:900px){.row{grid-template-columns:1fr}}
+.chart-wrap{position:relative}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;padding:6px 9px;border-radius:7px;white-space:nowrap;transform:translate(-50%,-110%)}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.feed li:last-child{border-bottom:0}
+.feed li.is-new{background:var(--accent-soft);margin-inline:-10px;padding-inline:10px;border-radius:8px}
+.convs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.conv{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:10px}
+.conv header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.conv ol{margin:0;padding-left:18px;font-size:13.5px;color:var(--muted)}
+.conv ol li.is-new{color:var(--accent-ink);font-weight:600}
+.mini-bar{height:6px;width:80px;background:var(--surface-2);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:8px}
+.mini-bar i{display:block;height:100%;background:var(--good)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.toolbar input{border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:8px 11px;min-width:0;width:260px;max-width:100%}
+.expense-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+@media (max-width:760px){.expense-form{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.expense-form{grid-template-columns:1fr}}
+textarea{width:100%;min-height:140px;font:12.5px/1.5 var(--mono);border:1px solid var(--line-strong);border-radius:8px;padding:10px;background:var(--surface-2);color:var(--ink)}
+.section-gap{display:grid;gap:16px}
+
+/* invoice modal */
+.modal{position:fixed;inset:0;background:rgba(10,12,14,.55);display:grid;place-items:center;z-index:50;padding:16px;overflow-y:auto}
+.modal-box{background:var(--surface);border-radius:14px;max-width:760px;width:100%;box-shadow:var(--shadow);max-height:calc(100vh - 32px);overflow-y:auto}
+.modal-top{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+.invoice{background:#FFFFFF;color:#16181B;margin:18px;border:1px solid #DADEE3;border-radius:6px;padding:28px;font-size:13.5px}
+.inv-head{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-bottom:3px solid #16181B;padding-bottom:16px}
+.inv-brand{display:flex;gap:12px;align-items:center}
+.inv-brand .mark{background:#16181B}
+.inv-brand b{font-family:var(--display);font-size:24px;letter-spacing:.1em}
+.inv-brand small{display:block;color:#5A616C;font-size:12px}
+.inv-meta{text-align:right;font-size:13px}
+.inv-meta strong{font-family:var(--display);font-size:26px;letter-spacing:.06em;display:block}
+.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-block:18px}
+@media (max-width:520px){.inv-parties{grid-template-columns:1fr}.inv-meta{text-align:left}}
+.inv-parties h4{margin:0 0 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8F4F06}
+.invoice table th{background:#F3F4F6;color:#5A616C;border-color:#DADEE3}
+.invoice table td{border-color:#E6E9ED}
+.inv-tot{margin-left:auto;max-width:300px;margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:6px 18px}
+.inv-tot .g{font-weight:700;font-size:16px;border-top:2px solid #16181B;padding-top:8px}
+.inv-foot{display:flex;gap:16px;align-items:center;margin-top:22px;padding-top:14px;border-top:1px solid #E6E9ED;color:#5A616C;font-size:12px}
+.qr{width:64px;height:64px;flex:none;background:
+  conic-gradient(from 90deg at 25% 25%,#16181B 25%,transparent 0) 0 0/16px 16px,
+  repeating-linear-gradient(90deg,#16181B 0 4px,transparent 4px 9px),#fff;border:4px solid #16181B;opacity:.85}
+.courses{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){.courses{grid-template-columns:1fr}}
+.seats{flex-wrap:wrap}
+.src{font:500 10.5px/1 var(--mono);letter-spacing:.04em;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:2px 4px;margin-left:6px;vertical-align:middle;text-transform:uppercase}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:13.5px;color:var(--muted)}
+.filters button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.mk-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cascade{display:grid;gap:8px;margin-top:12px}
+.cstep{display:grid;grid-template-columns:minmax(120px,1.3fr) minmax(0,3fr) 64px 92px;gap:12px;align-items:center;font-size:14px}
+@media (max-width:640px){.cstep{grid-template-columns:1fr 64px 84px}.cstep .cbar{grid-column:1/-1;order:3}}
+.cbar{height:26px;background:var(--surface-2);border-radius:6px;overflow:hidden}
+.cbar i{display:block;height:100%;background:var(--c-out);border-radius:6px;min-width:4px}
+.cstep.neck .cbar i{background:var(--crit)}
+.cstep .conv-pct{color:var(--muted);text-align:right}
+.cstep.neck .conv-pct{color:var(--crit);font-weight:600}
+.cost{display:inline-flex;flex-direction:column;align-items:flex-end;line-height:1.2;white-space:nowrap}
+.sem-good,.sem-warn,.sem-crit{white-space:nowrap}
+.cost small{font-size:11.5px;color:var(--muted)}
+.sem-good{color:var(--good)} .sem-warn{color:var(--warn)} .sem-crit{color:var(--crit)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:currentColor}
+tr.ad-row{cursor:pointer}
+tr.ad-row:hover td{background:var(--surface-2)}
+tr.ad-detail td{background:var(--surface-2);padding:12px 14px}
+.stages{display:flex;gap:8px;flex-wrap:wrap}
+.stages span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+.ladder{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:560px){.ladder{grid-template-columns:1fr}}
+.rung{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px}
+.rung.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rung small{color:var(--muted);font-size:12.5px}
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14px}
+.closers{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.closer{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px}
+.closer dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+.closer dt{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.closer dd{margin:0;font-family:var(--display);font-size:22px;font-weight:600}
+.paths{display:grid;gap:10px;margin-top:12px}
+.subplans{display:grid;gap:8px;margin:4px 0 0 28px}
+.date-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 0 28px;font-size:14px}
+.pipe{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:760px){.pipe{grid-template-columns:1fr}}
+.pipe li{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px;align-content:start}
+.pipe li .eyebrow{min-height:2.5em}
+@media (max-width:760px){.pipe li .eyebrow{min-height:0}}
+.pipe li b{font-family:var(--display);font-size:26px;font-weight:600}
+.pipe li small{color:var(--muted);font-size:12.5px}
+.who{display:flex;gap:12px;align-items:center}
+.who-name{display:grid;text-align:right;font-weight:600;font-size:14px;line-height:1.25}
+.who-name small{font-weight:400;color:var(--muted);font-size:12px}
+.login-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;max-width:1000px;margin:12px auto 0}
+@media (max-width:820px){.login-wrap{grid-template-columns:1fr}}
+.login-card form{display:grid;gap:12px;margin-top:18px}
+.err{color:var(--crit);font-size:14px}
+.demo-acc{display:grid;gap:8px;margin-top:12px}
+.demo-acc div{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+.demo-acc small{display:block;color:var(--muted);font-size:12.5px}
+.perm-grid{display:flex;flex-wrap:wrap;gap:8px 18px}
+.perm-grid label{display:flex;gap:6px;align-items:center;font-size:14px}
+.perm-grid input,.field .perm-grid input{accent-color:var(--accent);width:auto;padding:0}
+.field .perm-grid label{color:var(--ink);font-size:14px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chips span{font-size:12px;border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--muted);white-space:nowrap}
+.user-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+@media (max-width:760px){.user-form{grid-template-columns:1fr}}
+.mail-wrap{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);min-height:420px}
+@media (max-width:760px){.mail-wrap{grid-template-columns:1fr}}
+.mail-list{list-style:none;margin:0;padding:0;border-right:1px solid var(--line);max-height:70vh;overflow-y:auto}
+.mail-list button{display:grid;gap:2px;text-align:left;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:12px 16px;cursor:pointer;font-size:13.5px}
+.mail-list button[aria-current="true"]{background:var(--accent-soft)}
+.mail-list small{color:var(--muted);font-size:12px}
+.mail-view{padding:16px 20px;display:grid;gap:12px;align-content:start}
+.mail-card{background:#FFFFFF;color:#16181B;border:1px solid #DADEE3;border-radius:8px;padding:22px;font-size:14.5px;display:grid;gap:10px}
+.mail-card h2{font-size:24px}
+.mail-card .muted{color:#5A616C}
+.mail-card .linkbtn{color:#8F4F06}
+.mail-data{border-collapse:collapse;font-size:14px;width:auto}
+.mail-data td{border:0;padding:4px 16px 4px 0;vertical-align:top}
+.mail-data td:first-child{color:#5A616C;white-space:nowrap}
+.aula-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.course-card{display:grid;text-align:left;padding:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;overflow:hidden;color:var(--ink)}
+.course-card:hover{border-color:var(--line-strong)}
+.cover{position:relative;display:flex;align-items:flex-end;min-height:120px;padding:16px;background:#16181B;color:#F1EFEA;overflow:hidden}
+.cover b{position:relative;font-family:var(--display);font-size:24px;font-weight:600;line-height:1.1}
+.cover-arc{position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;border:3px solid var(--accent);opacity:.8;box-shadow:0 0 24px 2px rgba(232,150,46,.35)}
+.cc-body{display:grid;gap:8px;padding:14px 16px 16px;font-size:14px}
+.aula-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.aula-layout{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.aula-layout{grid-template-columns:1fr}}
+.mod-list{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.mod{border-top:1px solid var(--line)}
+.mod-h{display:grid;gap:2px;padding:12px 14px 6px}
+.mod-h small{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.mod.is-locked .mod-h b{color:var(--muted)}
+.les{display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:8px 14px;font-size:14px;cursor:pointer;color:var(--ink)}
+.les:hover:not([disabled]){background:var(--surface-2)}
+.les.on{background:var(--accent-soft)}
+.les[disabled]{cursor:not-allowed;color:var(--faint)}
+.les small{color:var(--muted);font-size:12px}
+.st{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;border:1.5px solid var(--line-strong)}
+.st.dn{background:var(--good);border-color:var(--good);color:#fff}
+.st.op{border-color:var(--accent)}
+.st.lk{border-style:dashed}
+.lock{display:inline-block;width:9px;height:8px;border:1.5px solid currentColor;border-radius:2px;position:relative;margin-top:3px}
+.lock::before{content:"";position:absolute;left:1px;top:-6px;width:4px;height:5px;border:1.5px solid currentColor;border-bottom:0;border-radius:4px 4px 0 0}
+.lesson-view{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.player{aspect-ratio:16/9;max-width:100%;background:#0E1012;border-radius:10px;overflow:hidden;display:grid}
+.player video{width:100%;height:100%;background:#000}
+.player-ph{display:grid;place-items:center;align-content:center;gap:12px;color:#C9C6C0;font-size:14px;text-align:center;padding:16px}
+.play{width:64px;height:64px;border-radius:50%;background:var(--accent);position:relative}
+.play::after{content:"";position:absolute;left:26px;top:20px;border-left:18px solid #1A1206;border-top:12px solid transparent;border-bottom:12px solid transparent}
+ul.plain{margin:6px 0 0;padding-left:18px;font-size:14px;color:var(--muted);display:grid;gap:4px}
+.hom-result{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:grid;gap:8px;justify-items:start}
+.file-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-strong);border-radius:8px;padding:6px 10px;font:500 13px var(--mono)}
+.file-chip::before{content:"PDF";font:700 10px var(--sans);background:var(--crit);color:#fff;border-radius:3px;padding:2px 4px}
+.ed-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+@media (max-width:760px){.ed-form{grid-template-columns:1fr}}
+.ed-row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.ed-lessons{margin:12px 0;padding-left:20px;display:grid;gap:8px}
+.ed-lessons li{padding:8px 0;border-top:1px solid var(--line)}
+.date-row input{border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:7px 10px}
+
+#gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:#101215;color:#ECEAE6;overflow-y:auto}
+#gate .g-box{width:100%;max-width:440px;display:grid;gap:14px}
+#gate .g-brand{display:flex;align-items:center;gap:10px}
+#gate .g-brand b{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.08em}
+#gate h1{font-size:34px;color:#ECEAE6}
+#gate p{color:#A0A6AF;font-size:15px}
+#gate form{display:grid;gap:10px;margin-top:6px}
+#gate label{font-size:13px;color:#A0A6AF}
+#gate input{font:600 22px var(--mono);letter-spacing:.3em;text-align:center;padding:12px;border-radius:10px;border:1px solid #3E444C;background:#1A1D21;color:#ECEAE6}
+#gate .g-err{color:#F0736A;font-size:14px;min-height:1.2em}
+#gate small{color:#747B85;font-size:12.5px}
+body.gated>:not(#gate){display:none!important}
+</style>
+</head>
+<body class="gated">
+<div id="gate" role="dialog" aria-labelledby="g-title">
+ <div class="g-box">
+  <div class="g-brand"><span class="mark" aria-hidden="true"></span><b>TORCH INSTITUTE</b></div>
+  <h1 id="g-title">Demo de la plataforma de alumnos</h1>
+  <p>Propuesta de John Martin para Torch Institute, escuela de soldadura TIG en Gelves (Sevilla): matrícula y pago online, aula con clases grabadas, homologación CESOL y panel de gestión.</p>
+  <form id="g-form" novalidate>
+   <label for="g-code">Contraseña de acceso</label>
+   <input id="g-code" type="password" inputmode="numeric" autocomplete="off" maxlength="12" autofocus>
+   <p class="g-err" id="g-err" role="alert"></p>
+   <button class="btn primary" type="submit">Entrar a la demo</button>
+  </form>
+  <small>Demo con datos de ejemplo. No es el campus oficial de Torch Institute.</small>
+ </div>
+</div>
+<script>
+(function(){
+ var H='fcb55bd7a875b7f3b000d0a39e3b55d802fe7844a3a37bfad5f32cbf9eaf7e0a',K='torch-demo-gate',fails=0,until=0;
+ function open(){document.body.classList.remove('gated');var g=document.getElementById('gate');if(g)g.remove();window.__gateOk=true;if(window.__boot)window.__boot()}
+ try{if(sessionStorage.getItem(K)===H){open();return}}catch(e){}
+ async function hash(t){var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')}
+ document.getElementById('g-form').addEventListener('submit',async function(e){e.preventDefault();var err=document.getElementById('g-err'),inp=document.getElementById('g-code');
+  if(Date.now()<until){err.textContent='Demasiados intentos. Espera unos segundos.';return}
+  if(await hash(inp.value.trim())===H){try{sessionStorage.setItem(K,H)}catch(e){}open()}
+  else{fails++;inp.value='';if(fails>=5){until=Date.now()+30000;fails=0;err.textContent='Demasiados intentos. Espera 30 segundos.'}else err.textContent='Contraseña incorrecta.';inp.focus()}});
+})();
+</script>
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand"><span class="mark" aria-hidden="true"></span><div><b>TORCH INSTITUTE</b><small>Campus · Gelves (Sevilla)</small></div></div>
+    <div id="who" class="who"></div>
+    <button class="btn small" id="mailbox">Correos de la demo</button>
+    <button class="linkbtn" id="reset">Reiniciar demo</button>
+  </div>
+</header>
+<div class="demo-note"><div><b>Demo con datos de ejemplo.</b> Ningún cobro es real. Entra con uno de los accesos de la demo o matricúlate como alumno nuevo. Los correos que enviaría la plataforma se ven en "Correos de la demo".</div></div>
+
+<main id="app"></main>
+<div id="modal-root"></div>
+
+<script>
+(function(){
+const LS='torch-campus-demo-v5';
+const EUR=new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0,useGrouping:'always'});
+const EUR2=new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:'always'});
+const NUM=new Intl.NumberFormat('es-ES',{maximumFractionDigits:1,useGrouping:'always'});
+const money=v=>Math.abs(v%1)>0.001?EUR2.format(v):EUR.format(v);
+const cmoney=v=>isFinite(v)?(v>=100?EUR.format(Math.round(v)):EUR2.format(v)):'—';
+const r2=v=>Math.round(v*100)/100;
+const dfmt=(d,o)=>new Date(d).toLocaleDateString('es-ES',o||{day:'numeric',month:'short'});
+const dlong=d=>dfmt(d,{day:'numeric',month:'long',year:'numeric'});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const addMonths=(d,n)=>{const x=new Date(d);x.setMonth(x.getMonth()+n);return x};
+const TODAY=new Date();TODAY.setHours(12,0,0,0);
+const plural=(n,a,b)=>n+' '+(n===1?a:b);
+/* ---- seguridad (demo): contraseñas con sal + hash, tokens aleatorios ---- */
+function sha256(str){const ascii=unescape(encodeURIComponent(str));const rr=(v,a)=>(v>>>a)|(v<<(32-a));const mp=Math.pow,maxWord=mp(2,32);let result='';const words=[],bitLen=ascii.length*8;
+  let hash=sha256.h=sha256.h||[];const k=sha256.k=sha256.k||[];let pl=k.length;const comp={};for(let c=2;pl<64;c++){if(!comp[c]){for(let i=0;i<313;i+=c)comp[i]=c;hash[pl]=(mp(c,.5)*maxWord)|0;k[pl++]=(mp(c,1/3)*maxWord)|0}}
+  let m=ascii+'\x80';while(m.length%64-56)m+='\x00';for(let i=0;i<m.length;i++){const j=m.charCodeAt(i);words[i>>2]|=j<<((3-i)%4)*8}
+  words[words.length]=((bitLen/maxWord)|0);words[words.length]=bitLen;
+  for(let j=0;j<words.length;){const w=words.slice(j,j+=16),old=hash;hash=hash.slice(0,8);
+    for(let i=0;i<64;i++){const w15=w[i-15],w2=w[i-2],a=hash[0],e=hash[4];
+      const t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+      const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));hash=[(t1+t2)|0].concat(hash);hash[4]=(hash[4]+t1)|0}
+    for(let i=0;i<8;i++)hash[i]=(hash[i]+old[i])|0}
+  for(let i=0;i<8;i++)for(let j=3;j+1;j--){const b=(hash[i]>>(j*8))&255;result+=((b<16)?0:'')+b.toString(16)}return result}
+const randHex=n=>{const a=new Uint8Array(n);crypto.getRandomValues(a);return [...a].map(b=>b.toString(16).padStart(2,'0')).join('')};
+function hashPass(pw,salt){let h=salt+pw;for(let i=0;i<150;i++)h=sha256(salt+h);return h}
+function setPass(u,pw){u.salt=randHex(16);u.hash=hashPass(pw,u.salt)}
+function checkPass(u,pw){return !!u.hash&&hashPass(pw,u.salt)===u.hash}
+const passOk=pw=>pw.length>=8&&/[A-Za-zÁÉÍÓÚáéíóúñÑ]/.test(pw)&&/\d/.test(pw);
+const PASS_RULE='Mínimo 8 caracteres, con letras y números.';
+const LOCK_N=5,LOCK_MS=15*60000,IDLE_MS=30*60000,RESET_MS=30*60000,INVITE_MS=48*3600000;
+
+const COURSES={
+  ini:{id:'ini',kind:'curso',name:'Iniciación TIG',price:2500,tag:'Iniciación',lead:'De cero a tu homologación en una semana.',items:['50 horas de lunes a viernes','Grupos de 5 alumnos','Homologación CESOL incluida']},
+  adv:{id:'adv',kind:'curso',name:'Avanzada TIG · Tubería',price:3000,tag:'Avanzada',lead:'Tubería sanitaria y de alta presión para quien ya suelda.',items:['50 horas de lunes a viernes','Grupos de 5 alumnos','Homologación CESOL incluida']},
+  hom:{id:'hom',kind:'hom',name:'Homologación CESOL',price:726,base:600,tag:'Homologación',lead:'Para soldadores profesionales de otro país que quieren certificarse en España.',items:['Prueba práctica evaluada por CESOL','Sesiones de hasta 12 profesionales','Un día en la nave de Gelves']}
+};
+const RESERVA=300, ALOJ=300, CAP=5, CAP_HOM=12, COMISION=0.10;
+const comOf=c=>(c.base||c.price)*COMISION;
+const CLOSERS=['John Martin','Juani'];
+const MODULE=[
+  {t:'CV que pasa filtros ATS',l:[['Cómo lee tu CV un ATS','7 min'],['Palabras clave de las ofertas de soldador','9 min'],['Plantilla de una página, sin tablas ni columnas','Plantilla'],['Cómo presentar tu homologación CESOL','6 min'],['Checklist ATS antes de enviar','Checklist']]},
+  {t:'Método de búsqueda en 7 días',l:[['Día 1 · Perfiles y alertas en portales','8 min'],['Día 2 · Tus 30 empresas objetivo','Plantilla'],['Días 3–5 · Llamada directa al jefe de taller','Guion'],['Día 6 · Seguimiento que no molesta','5 min'],['Día 7 · Preparar la prueba práctica','7 min']]},
+  {t:'Entrevistas',l:[['Las 12 preguntas que siempre salen','10 min'],['La prueba de soldadura en el taller','8 min'],['Sueldo y convenio del metal','6 min'],['Simulacro grabado','Entregable']]}
+];
+const LESSONS=MODULE.reduce((a,b)=>a+b.l.length,0);
+const CATS=['Alquiler de nave','Consumibles (varilla, gas, discos)','Homologación CESOL','Instructores','Traslados','Software','Otros'];
+const TABS=[['resumen','Resumen'],['convocatorias','Convocatorias'],['alumnos','Alumnos'],['finanzas','Ingresos y gastos'],['marketing','Marketing · Meta Ads'],['comercial','Equipo comercial'],['aula','Aula'],['homologaciones','Homologaciones'],['usuarios','Usuarios y accesos']];
+const PRESETS={admin:{label:'Administrador',perms:TABS.map(t=>t[0])},comercial:{label:'Comercial',perms:['convocatorias','alumnos','comercial']},marketing:{label:'Marketing',perms:['resumen','marketing','comercial']},custom:{label:'Personalizado',perms:[]}};
+const MODN={unico:'Pago único',klarna:'Klarna 3 plazos',cuotas:'Cuotas Torch',reserva:'Reserva'};
+
+/* ---------- Meta Ads (datos de ejemplo, últimos 30 días) ---------- */
+const SVC={ini:'Iniciación',adv:'Avanzada',hom:'Homologación'};
+const OBJ={ // objetivos por servicio (ejemplo): coste por etapa
+  ini:{leads:12,qual:25,citas:45,shows:70,cli:300},
+  adv:{leads:18,qual:35,citas:60,shows:90,cli:350},
+  hom:{leads:5,qual:9,citas:15,shows:22,cli:80}};
+const STAGES=[['leads','Lead'],['qual','Cualificado'],['citas','Consultoría agendada'],['shows','Asiste a consultoría'],['cli','Cliente']];
+const ADS_BASE=[
+ ['V1','ini','B2C_INICIACION_Leads','Hombres 20-35 · Andalucía','De cero a soldador en 5 días','Vídeo',620,160,52,28,16,12,3],
+ ['V2','ini','B2C_INICIACION_Leads','Intereses soldadura y FP','Testimonio: Daniel, primer contrato','Vídeo',410,98,30,17,10,8,2],
+ ['I1','ini','B2C_INICIACION_Leads','Hombres 20-35 · Andalucía','Grupo de 5 en la nave','Imagen',280,90,26,9,4,2,0],
+ ['C1','ini','B2C_INICIACION_Leads','Intereses soldadura y FP','Qué aprendes cada día','Carrusel',190,40,12,6,3,2,1],
+ ['V3','adv','B2C_AVANZADA_Leads','Soldadores en activo · España','Tubería de alta presión en 50 h','Vídeo',520,70,21,13,8,6,2],
+ ['V4','adv','B2C_AVANZADA_Leads','Lookalike alumnos 3 %','Lo que cobra un tubero TIG','Vídeo',460,110,34,10,5,2,0],
+ ['I2','adv','B2C_AVANZADA_Leads','Soldadores en activo · España','Probeta TIG en posición 6G','Imagen',150,22,7,4,2,1,0],
+ ['V5','hom','B2C_HOMOLOGACION_Leads','Soldadores extranjeros en España','Homologa tu experiencia en un día','Vídeo',240,120,44,26,18,14,6],
+ ['I3','hom','B2C_HOMOLOGACION_Leads','Latam · intereses soldadura','Certificado CESOL válido en España','Imagen',120,60,18,8,5,3,1],
+ ['C2','hom','B2C_HOMOLOGACION_Leads','Latam · intereses soldadura','Paso a paso de la homologación','Carrusel',180,95,20,6,3,1,0]
+].map(a=>({id:a[0],svc:a[1],camp:a[2],adset:a[3],name:a[4],fmt:a[5],spend:a[6],metaLeads:a[7],leads:a[8],qual:a[9],citas:a[10],shows:a[11],cli:a[12]}));
+function rng(seed){let s=seed;return()=>{s=(s*16807)%2147483647;return (s-1)/2147483646}}
+function splitInt(total,w){const sw=w.reduce((a,b)=>a+b,0);const raw=w.map(x=>total*x/sw);const fl=raw.map(Math.floor);let rem=total-fl.reduce((a,b)=>a+b,0);
+  raw.map((x,i)=>[x-fl[i],i]).sort((a,b)=>b[0]-a[0]).slice(0,rem).forEach(([,i])=>fl[i]++);return fl}
+const META=(()=>{const r=rng(7),D=30,days=[];for(let i=D-1;i>=0;i--)days.push(iso(addDays(TODAY,-i)));
+  const ads=ADS_BASE.map(a=>{const w=days.map(()=>0.55+r());const sw=w.reduce((x,y)=>x+y,0);
+    const spend=w.map(x=>r2(a.spend*x/sw));spend[D-1]=r2(spend[D-1]+a.spend-spend.reduce((x,y)=>x+y,0));
+    const daily={spend};['metaLeads','leads','qual','citas','shows','cli'].forEach(k=>{daily[k]=splitInt(a[k],w.map(x=>x*(0.7+r()*0.6)))});
+    return {...a,daily,rev:a.cli*COURSES[a.svc].price}});
+  return {days,ads}})();
+
+/* ---------- seed ---------- */
+function nextMonday(d){const x=new Date(d);const add=((8-x.getDay())%7)||7;x.setDate(x.getDate()+add);return x}
+function seed(){
+  const r=rng(42);
+  const m0=nextMonday(TODAY);
+  const weeks=[];
+  for(let i=0;i<13;i++){const s=addDays(m0,i*7);weeks.push({id:'w'+i,start:iso(s),end:iso(addDays(s,4)),course:i%3===2?'adv':'ini',cap:CAP})}
+  for(let i=0;i<7;i++){const s=addDays(m0,5+i*14);weeks.push({id:'h'+i,start:iso(s),end:iso(s),course:'hom',cap:CAP_HOM})}
+  weeks.sort((a,b)=>a.start.localeCompare(b.start));
+  const occ={w0:5,w1:4,w2:3,w3:5,w4:2,w5:3,w6:1,w7:2,w8:0,w9:1,w10:0,w11:1,w12:0,h0:9,h1:7,h2:4,h3:3,h4:2,h5:1,h6:0};
+  const names=['Daniel Romero','Lucía Navarro','Iván Castillo','Marta Gil','Rubén Ortega','Sergio Prieto','Andrea Luque','Pablo Vega','Nerea Campos','Adrián Marín','Óscar Blanco','Javier Pardo','Irene Soto','Mario Cabello','Hugo Serrano','Álvaro Rey','Cristina Mora','Raúl Fuentes','Tomás Aguilar','Elena Vidal','Samuel León','Víctor Ruiz','Carmen Benítez','Diego Parra','Lorena Cano','Manuel Ríos','Alba Herrero','Iker Santos','Rocío Delgado','Enrique Lozano','Luis Fernando Quispe','José Antonio Duarte','Kevin Mendoza','Rafael Acosta','Wilmer Rojas','Nelson Paredes','Jorge Salazar','Andrés Cárdenas','Mauricio Vargas','Alexis Ramírez','Brayan Torres','Cristian Gómez','Edwin Morales','Fabián Castro','Gustavo Peña','Héctor Valdés','Julio Ortiz','Leonardo Ríos','Miguel Herrera','Omar Villalba'];
+  const students=[],payments=[],scheduled=[],commissions=[];
+  let n=0,nh=30;
+  const pastDate=i=>iso(addDays(TODAY,-Math.floor(2+r()*Math.max(6,70-i*3))));
+  weeks.forEach((w,i)=>{for(let k=0;k<(occ[w.id]||0);k++){
+    const c=COURSES[w.course];const hom=c.kind==='hom';const name=hom?names[nh++%names.length]:names[n%30];if(!hom)n++;
+    const rc=r();const comercial=rc<.5?'John Martin':rc<.85?'Juani':'Web directa';
+    const wi=+w.id.slice(1);let mod;
+    if(hom) mod=r()<.7?'unico':'klarna';
+    else if(wi<2) mod=r()<.6?'unico':'klarna'; else if(wi<6) mod=r()<.35?'unico':r()<.6?'cuotas':'klarna'; else mod=r()<.55?'reserva':'cuotas';
+    const id='s'+(students.length+1);const d0=pastDate(hom?wi*2:wi);
+    const st={id,name,email:name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ /g,'.')+'@example.com',course:w.course,week:w.id,comercial,mod,total:c.price,paid:0,progress:Math.floor(r()*(LESSONS+1)),aloj:!hom&&r()<.7,created:d0};
+    const pay=(date,amount,concept,method)=>{payments.push({id:'p'+payments.length,date,student:id,amount,concept,method});st.paid=r2(st.paid+amount)};
+    if(mod==='unico')pay(d0,c.price,hom?'Homologación completa':'Formación completa','Stripe · tarjeta');
+    if(mod==='klarna')pay(d0,c.price,'Pago con Klarna (3 plazos)','Stripe · Klarna');
+    if(mod==='reserva'){pay(d0,RESERVA,'Reserva de plaza','Stripe · tarjeta');
+      const dl=deadlineOf(w);const span=Math.max(0,Math.floor((dl-TODAY)/864e5)-3);st.payStart=iso(addDays(TODAY,3+Math.floor(r()*span)));if(new Date(st.payStart)>dl)st.payStart=iso(dl)}
+    if(mod==='cuotas'){pay(d0,RESERVA,'Reserva de plaza','Stripe · tarjeta');const rest=c.price-RESERVA;const q=r2(rest/3);
+      for(let j=1;j<=3;j++){const dt=addMonths(new Date(d0),j),am=j===3?r2(rest-2*q):q;
+        if(dt<=TODAY)pay(iso(dt),am,'Cuota '+j+' de 3','Cuotas Torch · tarjeta');else scheduled.push({student:id,date:iso(dt),amount:am,concept:'Cuota '+j+' de 3'})}}
+    if(comercial!=='Web directa')commissions.push({student:id,comercial,amount:comOf(c),date:d0,settled:r()<.35});
+    students.push(st);
+  }});
+  const ym=TODAY.getFullYear()+'-'+String(TODAY.getMonth()+1).padStart(2,'0');const dom=TODAY.getDate();
+  const dd=k=>ym+'-'+String(Math.min(k,Math.max(1,dom))).padStart(2,'0');
+  const expenses=[
+    {id:'e1',date:dd(1),concept:'Alquiler nave Gelves',cat:'Alquiler de nave',amount:900,week:'',ticket:'contrato.pdf'},
+    {id:'e2',date:dd(3),concept:'Argón 50 L + varilla ER308L',cat:'Consumibles (varilla, gas, discos)',amount:386,week:'w0',ticket:'ticket-soldaduras-sur.jpg'},
+    {id:'e3',date:dd(5),concept:'Tasas de homologación (5 probetas)',cat:'Homologación CESOL',amount:525,week:'w0',ticket:'factura-cesol.pdf'},
+    {id:'e5',date:dd(12),concept:'Discos de corte y cepillos',cat:'Consumibles (varilla, gas, discos)',amount:118,week:'w1',ticket:'ticket-ferreteria.jpg'},
+    {id:'e6',date:dd(15),concept:'Traslados aeropuerto (2 alumnos)',cat:'Traslados',amount:80,week:'w1',ticket:''},
+    {id:'e7',date:dd(20),concept:'Herramientas de gestión',cat:'Software',amount:45,week:'',ticket:'recibo.pdf'}
+  ];
+  const users=[
+    {id:'u1',name:'Eduardo Jurado',email:'eduardo@torchinstitute.es',pw:'eduardo123',type:'equipo',role:'admin',title:'Director',perms:[...PRESETS.admin.perms],active:true,owner:true},
+    {id:'u2',name:'John Martin',email:'john@torchinstitute.es',pw:'john2026',type:'equipo',role:'admin',title:'Marketing y ventas',perms:[...PRESETS.admin.perms],active:true},
+    {id:'u3',name:'Juani',email:'juani@torchinstitute.es',pw:'juani2026',type:'equipo',role:'comercial',title:'Ventas',perms:[...PRESETS.comercial.perms],active:true},
+    ...students.map(st=>({id:'u-'+st.id,name:st.name,email:st.email,pw:'alumno123',type:'alumno',student:st.id,active:true}))];
+  users.forEach(u=>{setPass(u,u.pw);delete u.pw});
+  return {v:5,_progress:true,aula:seedAula(),done:{},unlocks:{},stuView:'area',aulaSel:{},aulaTab:'preview',ed:null,users,session:null,emails:[],tokens:[],fails:{},lastActive:0,weeks,students,payments,scheduled,commissions,expenses,invoices:[],invSeq:41,
+    history:{inc:[9800,14300,11600,8200,3900,0],exp:[4300,5600,4800,3900,2600,0]},
+    closerExtra:{'John Martin':{noShow:6,noSale:9},'Juani':{noShow:4,noSale:7}},
+    me:null,flow:{step:1,course:'ini',week:null},view:'login',tab:'resumen',mkSvc:'all',mkOpen:null,newIds:[]};
+}
+function seedAula(){let n=0;const L=(t,d,desc)=>({id:'l'+(++n),t,dur:d,desc:desc||'',video:null});const M=(id,t,rule,days,ls)=>({id,t,rule,days:days||0,lessons:ls});
+  return {courses:[
+   {id:'c-ini',t:'Iniciación a la soldadura TIG',desc:'De cero a tus primeros cordones limpios y a la prueba de homologación.',aud:['ini','adv'],mods:[
+     M('m1','Seguridad y puesto de trabajo','libre',0,[L('Equipos de protección y riesgos del arco',8,'Qué protege cada EPI y por qué no se negocia ninguno.'),L('Preparar el puesto y la máquina',10),L('Gases de protección: el argón',7)]),
+     M('m2','Fundamentos del TIG','secuencial',0,[L('Cómo funciona el proceso TIG',9),L('Afilar el electrodo de tungsteno',6),L('Amperaje, polaridad y postflujo',11)]),
+     M('m3','Primeros cordones','secuencial',0,[L('Cebado y baño de fusión',8),L('Cordón en plano (1G)',12),L('Aporte de varilla y ritmo',10)]),
+     M('m4','Uniones y posiciones','fecha',7,[L('Unión a tope',12),L('Soldadura en ángulo',11),L('Vertical y cornisa',13)]),
+     M('m5','Preparar la homologación','manual',0,[L('Qué evalúa CESOL',8),L('La probeta: errores que suspenden',10)])]},
+   {id:'c-adv',t:'Avanzada · Tubería sanitaria y de alta presión',desc:'Tubería en inoxidable y acero al carbono, de la raíz a la posición 6G.',aud:['adv'],mods:[
+     M('m6','Preparar la tubería','libre',0,[L('Biselado y ajuste',11),L('Punteado y alineación',9)]),
+     M('m7','Tubería sanitaria en inoxidable','secuencial',0,[L('Respaldo de gas (purga)',10),L('Soldadura de tubo fino en inox',14)]),
+     M('m8','Alta presión','secuencial',0,[L('Pasada de raíz',13),L('Relleno y peinado',12),L('Posición 6G',15)]),
+     M('m9','Control de calidad','manual',0,[L('Defectos típicos e inspección',11)])]},
+   {id:'c-emp',t:'Empleo: CV, búsqueda y entrevistas',desc:'Consigue trabajo como soldador: CV que pasa filtros, método de 7 días y entrevistas.',aud:['ini','adv'],mods:
+     MODULE.map((b,i)=>M('me'+i,b.t,i?'secuencial':'libre',0,b.l.map(x=>L(x[0],parseInt(x[1])||5,x[1].match(/\d/)?'':x[1]+' descargable.'))))}
+  ]}}
+function deadlineOf(w){return addDays(new Date(w.start),w.course==='hom'?-1:-3)}
+let S;
+function load(){try{try{localStorage.removeItem('torch-campus-demo-v3');localStorage.removeItem('torch-campus-demo-v4');localStorage.removeItem('torch-campus-demo-v2')}catch(e){}const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);if(o&&o.v===5&&o.weeks&&o.weeks[0]&&new Date(o.weeks[0].start)>TODAY)return o}}catch(e){}return seed()}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+S=load();
+
+/* ---------- helpers ---------- */
+const W=id=>S.weeks.find(w=>w.id===id);
+const ST=id=>S.students.find(s=>s.id===id);
+const taken=wid=>S.students.filter(s=>s.week===wid).length;
+const isHom=w=>w.course==='hom';
+const wkLabel=w=>w.start===w.end?dfmt(w.start,{weekday:'short',day:'numeric',month:'short'}).replace(',',''):(new Date(w.start).getMonth()===new Date(w.end).getMonth()?dfmt(w.start,{day:'numeric'}):dfmt(w.start))+'–'+dfmt(w.end);
+const deadline=deadlineOf;
+const monthsAvail=w=>Math.max(1,Math.min(6,Math.floor((deadline(w)-TODAY)/(30.5*864e5))+1));
+function status(s){
+  if(s.paid>=s.total-0.01)return['Pagada','p-good'];
+  if(s.mod==='cuotas')return['En cuotas','p-info'];
+  return['Reservada','p-warn'];
+}
+function toast(msg){document.querySelectorAll('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3400)}
+function isNew(id){return S.newIds.includes(id)}
+function monthKey(d){const x=new Date(d);return x.getFullYear()*12+x.getMonth()}
+const THIS_M=monthKey(TODAY);
+const metaSpendMonth=k=>{let t=0;META.ads.forEach(a=>a.daily.spend.forEach((v,i)=>{if(monthKey(META.days[i])===k)t+=v}));return r2(t)};
+const seatsHTML=(w,list,youIdx)=>'<span class="seats" aria-hidden="true">'+Array.from({length:w.cap},(_,i)=>'<span class="seat '+(i<list?'taken':(i===youIdx?'you':''))+'"></span>').join('')+'</span>';
+
+/* ---------- view switch ---------- */
+$('#mailbox').onclick=()=>showMailbox();
+$('#reset').onclick=()=>{S=seed();save();render();toast('Demo reiniciada con los datos de ejemplo')};
+function me(){return S.session?S.users.find(u=>u.id===S.session&&u.active):null}
+const isAdmin=u=>!!u&&u.type==='equipo'&&u.perms.includes('usuarios');
+function roleLabel(u){return u.type==='alumno'?'Alumno':(u.title||PRESETS[u.role]?.label||'Equipo')}
+function render(){if(S.session&&S.lastActive&&Date.now()-S.lastActive>IDLE_MS){S.session=null;S.view='login';setTimeout(()=>toast('Sesión cerrada por inactividad. Vuelve a entrar.'),50)}
+  if(S.session)S.lastActive=Date.now();const u=me();if(S.session&&!u)S.session=null;save();
+  $('#who').innerHTML=u?`<span class="who-name">${esc(u.name)}<small>${esc(roleLabel(u))}</small></span><button class="btn small" id="logout">Cerrar sesión</button>`:(S.view==='matricula'?'<button class="btn small" id="to-login">Iniciar sesión</button>':'');
+  let html;
+  if(!u)html=S.view==='matricula'?renderStudent():S.view==='forgot'?renderForgot():S.view==='reset'?renderReset():renderLogin();
+  else if(u.type==='alumno'){S.me=u.student&&ST(u.student)?u.student:null;if(S.me)S.flow.step=4;html=renderStudent()}
+  else{const allowed=TABS.filter(t=>u.perms.includes(t[0]));if(!allowed.some(t=>t[0]===S.tab))S.tab=allowed[0]?.[0];
+    html=allowed.length?renderPanel(u,allowed):'<div class="locked">Tu perfil todavía no tiene secciones asignadas. Pide acceso a Eduardo o a John.</div>'}
+  $('#app').innerHTML=html;bind()}
+function renderForgot(){return `<section class="login-wrap" style="grid-template-columns:minmax(0,560px);justify-content:center">
+  <div class="card login-card"><p class="eyebrow">Campus Torch Institute</p><h1 style="margin-top:6px">Recupera tu contraseña</h1>
+   ${S.forgotSent?`<p style="margin-top:12px">Si existe una cuenta con <b>${esc(S.forgotSent)}</b>, te hemos enviado un enlace para crear una contraseña nueva. Caduca en 30 minutos y solo sirve una vez.</p><p class="muted" style="font-size:13.5px;margin-top:8px">En la demo, ábrelo desde "Correos de la demo".</p><div class="actions"><button class="btn primary" id="open-mail">Ver correos de la demo</button><button class="btn" id="back-login">Volver a iniciar sesión</button></div>`
+   :`<p class="muted" style="margin-top:8px">Escribe el correo con el que entras al campus y te mandamos un enlace para crear una contraseña nueva.</p>
+   <form id="f-forgot" novalidate><div class="field"><label for="fg-email">Correo</label><input id="fg-email" type="email" value="${esc(S.lEmail||'')}"></div><button class="btn primary" type="submit">Enviarme el enlace</button></form>
+   <button class="linkbtn" id="back-login" style="margin-top:16px">Volver a iniciar sesión</button>`}</div></section>`}
+function validToken(t){const k=S.tokens.find(x=>x.token===t);return k&&!k.used&&Date.now()<k.exp?k:null}
+function renderReset(){const k=validToken(S.resetToken);const u=k&&S.users.find(x=>x.id===k.user);
+  return `<section class="login-wrap" style="grid-template-columns:minmax(0,560px);justify-content:center"><div class="card login-card"><p class="eyebrow">Campus Torch Institute</p>
+   ${!u?`<h1 style="margin-top:6px">Este enlace ya no sirve</h1><p class="muted" style="margin-top:8px">Ha caducado o ya se ha usado. Pide uno nuevo.</p><div class="actions"><button class="btn primary" id="to-forgot">Pedir otro enlace</button><button class="btn" id="back-login">Volver a iniciar sesión</button></div>`
+   :`<h1 style="margin-top:6px">${k.kind==='invite'?'Crea tu contraseña':'Crea una contraseña nueva'}</h1><p class="muted" style="margin-top:8px">Para <b>${esc(u.email)}</b>. ${PASS_RULE}</p>
+   <form id="f-reset" novalidate><div class="field"><label for="rs-1">Contraseña nueva</label><input id="rs-1" type="password" autocomplete="new-password"></div>
+   <div class="field"><label for="rs-2">Repite la contraseña</label><input id="rs-2" type="password" autocomplete="new-password"></div><p class="err" id="rs-err" hidden></p>
+   <button class="btn primary" type="submit">Guardar contraseña</button></form>`}</div></section>`}
+/* ---- correos (demo) ---- */
+function sendMail(to,kind,data){S.emails.unshift({id:'m'+Date.now()+randHex(2),to,kind,data,date:new Date().toISOString(),read:false})}
+function mailBody(m){const d=m.data||{};const btn=(attr,val,label)=>`<button class="btn primary" ${attr}="${esc(val)}">${label}</button>`;
+  if(m.kind==='welcome')return{subject:'Tu usuario del campus de Torch Institute ya está creado',html:`<h2>Hola, ${esc(d.name.split(' ')[0])}. Tu usuario ya está creado</h2><p>Ya tienes acceso a tu área de alumno en el campus de Torch Institute (torchinstitute.es): tu factura, tus fechas, la comunidad y el módulo de empleo.</p>
+    <table class="mail-data"><tr><td>Usuario</td><td><b>${esc(m.to)}</b></td></tr><tr><td>Contraseña</td><td>La que elegiste al matricularte. Por seguridad, nunca la enviamos por correo.</td></tr></table>
+    <p>${btn('data-mail-login',m.to,'Entrar a mi área')}</p><p><button class="linkbtn" data-mail-forgot="${esc(m.to)}">¿Has olvidado tu contraseña?</button></p>`};
+  if(m.kind==='invoice')return{subject:'Tu factura '+d.num+' de Torch Institute',html:`<h2>Gracias por tu pago</h2><p>Te enviamos la factura de tu ${esc(d.concept.toLowerCase())}.</p><table class="mail-data"><tr><td>Factura</td><td><b>${esc(d.num)}</b></td></tr><tr><td>Importe</td><td>${money(d.amount)} (IVA incluido)</td></tr></table><p>${btn('data-mail-inv',d.num,'Ver factura')}</p><p class="muted">También la tienes siempre en tu área de alumno.</p>`};
+  if(m.kind==='invite')return{subject:'Te han dado acceso al campus de Torch Institute',html:`<h2>Hola, ${esc(d.name.split(' ')[0])}</h2><p>${esc(d.by)} ha creado tu perfil en el campus de Torch Institute${d.role?' como <b>'+esc(d.role)+'</b>':''}.</p><table class="mail-data"><tr><td>Usuario</td><td><b>${esc(m.to)}</b></td></tr></table><p>Para entrar, crea tu contraseña. El enlace caduca en 48 horas y solo sirve una vez.</p><p>${btn('data-mail-reset',d.token,'Crear mi contraseña')}</p>`};
+  if(m.kind==='reset')return{subject:'Restablece tu contraseña de Torch Institute',html:`<h2>¿Has olvidado tu contraseña?</h2><p>Hemos recibido una petición para cambiar la contraseña de <b>${esc(m.to)}</b>. El enlace caduca en 30 minutos y solo sirve una vez.</p><p>${btn('data-mail-reset',d.token,'Crear una contraseña nueva')}</p><p class="muted">Si no lo has pedido tú, ignora este correo: tu contraseña no cambia.</p>`};
+  if(m.kind==='hom_ok')return{subject:'Has superado tu homologación CESOL',html:`<h2>Enhorabuena, ${esc(d.name.split(' ')[0])}</h2><p>Has superado la prueba de homologación del ${esc(d.fecha)}. Te adjuntamos tu certificado; también lo tienes en tu cuenta del campus.</p><p><span class="file-chip">${esc(d.cert)}</span></p><p>${btn('data-mail-login',m.to,'Entrar a mi cuenta')}</p>`};
+  if(m.kind==='hom_ko')return{subject:'Resultado de tu homologación CESOL',html:`<h2>Hola, ${esc(d.name.split(' ')[0])}</h2><p>Esta vez la prueba de homologación del ${esc(d.fecha)} no ha salido como esperabas.</p>${d.motivos?`<table class="mail-data"><tr><td>Motivos</td><td>${esc(d.motivos)}</td></tr></table>`:''}<p>Contesta a este correo y te ayudamos a preparar la siguiente convocatoria.</p><p>${btn('data-mail-login',m.to,'Entrar a mi cuenta')}</p>`};
+  if(m.kind==='changed')return{subject:'Tu contraseña de Torch Institute se ha cambiado',html:`<h2>Contraseña actualizada</h2><p>La contraseña de <b>${esc(m.to)}</b> se ha cambiado.</p><p class="muted">Si no has sido tú, contesta a este correo o llama a la academia cuanto antes.</p><p>${btn('data-mail-login',m.to,'Entrar al campus')}</p>`};
+  return{subject:'',html:''}}
+function showMailbox(sel){const list=S.emails;const cur=list.find(x=>x.id===sel)||list[0];if(cur)cur.read=true;save();
+  $('#modal-root').innerHTML=`<div class="modal" id="mdl" role="dialog" aria-modal="true" aria-label="Correos de la demo"><div class="modal-box" style="max-width:980px">
+   <div class="modal-top"><b>Correos enviados por la plataforma (demo)</b><button class="btn small" id="mclose">Cerrar</button></div>
+   ${list.length?`<div class="mail-wrap"><ul class="mail-list">${list.map(x=>`<li><button data-mail-open="${x.id}" aria-current="${cur&&x.id===cur.id}"><b>${esc(mailBody(x).subject)}</b><small>Para: ${esc(x.to)} · ${new Date(x.date).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</small></button></li>`).join('')}</ul>
+   <div class="mail-view"><div class="mail-head"><small class="muted">De: Torch Institute &lt;campus@torchinstitute.es&gt; · Para: ${esc(cur.to)}</small><h3 style="margin-top:4px">${esc(mailBody(cur).subject)}</h3></div>
+    <div class="mail-card"><div class="inv-brand" style="margin-bottom:14px"><span class="mark" aria-hidden="true"></span><div><b>TORCH INSTITUTE</b><small>Campus · Gelves (Sevilla)</small></div></div>${mailBody(cur).html}
+    <p class="muted" style="font-size:12px;margin-top:18px">Torch Institute · Gelves (Sevilla) · Este correo se ha enviado de forma automática.</p></div></div></div>`
+   :'<p class="muted" style="padding:24px">Todavía no se ha enviado ningún correo. Matricula a un alumno, crea un perfil o pide recuperar una contraseña.</p>'}</div></div>`;
+  $('#mclose').onclick=closeModal;$('#mdl').onclick=e=>{if(e.target.id==='mdl')closeModal()};
+  document.querySelectorAll('[data-mail-open]').forEach(b=>b.onclick=()=>showMailbox(b.dataset.mailOpen));
+  document.querySelectorAll('[data-mail-inv]').forEach(b=>b.onclick=()=>showInvoice(b.dataset.mailInv,true));
+  document.querySelectorAll('[data-mail-login]').forEach(b=>b.onclick=()=>{closeModal();S.session=null;S.view='login';S.lEmail=b.dataset.mailLogin;save();render()});
+  document.querySelectorAll('[data-mail-forgot]').forEach(b=>b.onclick=()=>{closeModal();S.session=null;S.view='forgot';S.forgotSent=null;S.lEmail=b.dataset.mailForgot;save();render()});
+  document.querySelectorAll('[data-mail-reset]').forEach(b=>b.onclick=()=>{closeModal();S.session=null;S.view='reset';S.resetToken=b.dataset.mailReset;save();render()});
+}
+function renderLogin(){const stu=S.users.find(x=>x.type==='alumno');
+  const acc=[['Eduardo Jurado','Administrador · lo ve todo y crea perfiles','eduardo@torchinstitute.es','eduardo123'],['John Martin','Administrador · marketing y ventas','john@torchinstitute.es','john2026'],['Juani','Comercial · convocatorias, alumnos y sus comisiones','juani@torchinstitute.es','juani2026']];
+  if(stu)acc.push([stu.name,'Alumno · solo su área',stu.email,'alumno123']);
+  return `<section class="login-wrap">
+   <div class="card login-card"><p class="eyebrow">Campus Torch Institute</p><h1 style="margin-top:6px">Inicia sesión</h1>
+    <p class="muted" style="margin-top:8px">Alumnos y equipo entran con su correo y su contraseña. Cada perfil ve solo lo que le corresponde.</p>
+    <form id="f-login" novalidate>
+     <div class="field"><label for="l-email">Correo</label><input id="l-email" type="email" autocomplete="username" value="${esc(S.lEmail||'')}"></div>
+     <div class="field"><label for="l-pass">Contraseña</label><input id="l-pass" type="password" autocomplete="current-password"></div>
+     <p class="err" id="l-err" hidden></p>
+     <button type="button" class="linkbtn" id="to-forgot" style="justify-self:start;color:var(--accent-ink)">¿Has olvidado tu contraseña?</button>
+     <button class="btn primary" type="submit">Entrar</button>
+    </form>
+    <p style="margin-top:18px;font-size:14px">¿Aún no eres alumno? <button class="linkbtn" id="to-matricula" style="font-size:14px;color:var(--accent-ink)">Matricúlate aquí</button></p></div>
+   <aside class="card"><p class="eyebrow">Accesos de la demo</p><p class="muted" style="font-size:14px;margin-top:6px">Pulsa "Usar" para rellenar el formulario con ese perfil.</p>
+    <div class="demo-acc">${acc.map(a=>`<div><span><b>${esc(a[0])}</b><small>${a[1]}</small><small class="mono">${esc(a[2])} · ${esc(a[3])}</small></span><button class="btn small" data-demo-email="${esc(a[2])}" data-demo-pass="${esc(a[3])}">Usar</button></div>`).join('')}</div>
+    <p class="muted" style="font-size:12.5px;margin-top:12px">Las contraseñas no se guardan tal cual: solo su huella cifrada. Tras 5 intentos fallidos, el acceso se bloquea 15 minutos.</p></aside>
+  </section>`}
+
+/* ================= STUDENT ================= */
+function stepper(n){const labels=['Formación y fecha','Tus datos','Pago','Tu área'];
+  return '<ol class="steps">'+labels.map((l,i)=>'<li class="'+(i+1===n?'on':i+1<n?'done':'')+'"><span>'+(i+1<n?'✓':i+1)+'</span>'+l+'</li>').join('')+'</ol>'}
+
+function renderStudent(){
+  const f=S.flow;
+  if(f.step===4&&S.me&&ST(S.me))return renderArea();
+  if(f.step===4)f.step=1;
+  if(f.step===1){const c=COURSES[f.course];return stepper(1)+`
+  <section class="hero"><p class="eyebrow">Matrícula online</p><h1>Elige tu formación y tu fecha en Gelves</h1>
+  ${me()?'':'<p style="font-size:14px">¿Ya eres alumno? <button class="linkbtn" id="to-login2" style="font-size:14px;color:var(--accent-ink)">Inicia sesión</button></p>'}
+  <p>Formaciones en grupos cerrados de ${CAP} alumnos y sesiones de homologación para profesionales. Puedes reservar tu plaza con ${money(RESERVA)} o pagarlo ya, como mejor te venga.</p></section>
+  <div class="courses" role="radiogroup" aria-label="Formación">
+  ${Object.values(COURSES).map(c=>`<button class="course" role="radio" aria-checked="${f.course===c.id}" data-course="${c.id}">
+    <span class="chip ${c.id!=='ini'?'adv':''}" style="justify-self:start">${c.tag}</span>
+    <h3>${c.name}</h3><p class="muted">${c.lead}</p>
+    <div class="price num">${c.base?money(c.base)+'<small>+ IVA · '+money(c.price)+' en total</small>':money(c.price)+'<small>IVA incluido</small>'}</div>
+    <ul>${c.items.map(i=>'<li>'+i+'</li>').join('')}${c.kind==='curso'?'<li>Alojamiento opcional: '+money(ALOJ)+' en metálico a la llegada</li>':''}</ul></button>`).join('')}
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><h2>${c.kind==='hom'?'Sesiones de homologación':'Semanas disponibles'}</h2><span class="muted" style="font-size:13.5px">Próximos 3 meses · ${c.kind==='hom'?'sábados':'lunes a viernes'}</span></div>
+  <div class="weeks" role="radiogroup" aria-label="Fecha">
+  ${S.weeks.filter(w=>w.course===f.course).map(w=>{const t=taken(w.id),free=w.cap-t;
+    return `<button class="week" role="radio" data-week="${w.id}" aria-checked="${f.week===w.id}" ${free<=0?'disabled':''}>
+      <b>${wkLabel(w)}</b>${seatsHTML(w,t,f.week===w.id?t:-1)}
+      <span style="font-size:13px" class="muted">${free<=0?'<span class="pill p-crit">Completa</span>':free<=2?'<span class="pill p-warn">'+(free===1?'Queda 1':'Quedan '+free)+'</span>':free+' plazas libres'}</span></button>`}).join('')}
+  </div>
+  <div class="actions"><button class="btn primary" id="to2" ${f.week?'':'disabled'}>Continuar</button>
+  ${f.week&&W(f.week)?'<span class="muted">'+c.name+' · '+wkLabel(W(f.week))+'</span>':'<span class="muted">Elige una fecha para continuar</span>'}</div>`}
+
+  if(!f.week||!W(f.week)){f.step=1;return renderStudent()}
+  const w=W(f.week),c=COURSES[f.course];
+  if(f.step===2)return stepper(2)+`
+  <div class="layout-2"><form class="card" id="f-datos" novalidate>
+    <h2 style="margin-bottom:4px">Tus datos</h2><p class="muted" style="margin-bottom:16px">Los usamos para tu factura y tu homologación. Solo te los pedimos una vez.</p>
+    <div class="grid2">
+      <div class="field"><label for="d-name">Nombre y apellidos</label><input id="d-name" value="${esc(me()?.name||(c.kind==='hom'?'Carlos Andrés Mejía':'Alejandro Ruiz Campos'))}" required></div>
+      <div class="field"><label for="d-dni">DNI / NIE / pasaporte</label><input id="d-dni" value="${c.kind==='hom'?'Y1234567X':'12345678Z'}" required></div>
+      <div class="field"><label for="d-email">Email</label><input id="d-email" type="email" value="${esc(me()?.email||(c.kind==='hom'?'carlos.mejia@example.com':'alejandro.ruiz@example.com'))}" ${me()?'readonly':''} required></div>
+      ${me()?'':`<div class="field"><label for="d-pass">Crea tu contraseña</label><input id="d-pass" type="password" value="Soldar2026" autocomplete="new-password"></div><div class="field"><label>&nbsp;</label><p class="muted" style="font-size:13px">${PASS_RULE} Con tu correo y esta contraseña entrarás a tu área.</p></div>`}
+      <div class="field"><label for="d-tel">Teléfono (WhatsApp)</label><input id="d-tel" value="+34 600 123 456" required></div>
+      <div class="field" style="grid-column:1/-1"><label for="d-dir">Dirección fiscal</label><input id="d-dir" value="Av. de Andalucía 21, 3.º B · 21004 Huelva" required></div>
+      <div class="field"><label for="d-nivel">${c.kind==='hom'?'Años de experiencia soldando':'Punto de partida'}</label><select id="d-nivel">${c.kind==='hom'?'<option>Menos de 3 años</option><option selected>De 3 a 10 años</option><option>Más de 10 años</option>':'<option>Nunca he soldado</option><option>He soldado algo por mi cuenta</option><option>Trabajo en el sector</option>'}</select></div>
+      <div class="field"><label for="d-llegada">¿Cómo llegas?</label><select id="d-llegada"><option>En coche</option><option>En avión (Sevilla)</option><option>En tren o autobús</option></select></div>
+    </div>
+    <div style="display:grid;gap:10px;margin-top:16px">
+      ${c.kind==='curso'?`<label class="check"><input type="checkbox" id="d-aloj" checked> <span>Quiero alojamiento de lunes a viernes (${money(ALOJ)} en metálico a la llegada, no se cobra online)</span></label>`:''}
+      <label class="check"><input type="checkbox" id="d-cond" checked> <span>Acepto las condiciones: plazas cerradas, sin cancelación ni reembolso</span></label>
+      <label class="check"><input type="checkbox" id="d-wa" checked> <span>Quiero entrar en la comunidad de WhatsApp de alumnos (los demás miembros verán mi teléfono)</span></label>
+    </div>
+    <div class="actions"><button class="btn" type="button" id="back1">Atrás</button><button class="btn primary" type="submit">Ir al pago</button></div>
+  </form>
+  ${summaryCard(c,w)}</div>`;
+
+  if(f.step===3){
+    const canRes=c.kind==='curso';if(!canRes)f.path='ahora';if(!f.path)f.path='reserva';
+    const months=monthsAvail(w);let plan=f.plan||'unico';if(plan==='cuotas'&&months<2)plan='unico';
+    const dl=deadline(w);if(!f.payStart||new Date(f.payStart)>dl||new Date(f.payStart)<TODAY)f.payStart=iso(new Date(Math.min(+dl,+addDays(TODAY,14))));
+    const due=todayAmount(c,f.path,plan,months);
+    return stepper(3)+`
+  <div class="layout-2"><div class="section-gap">
+    <div class="card"><h2>¿Cómo quieres pagar?</h2>
+      <div class="paths" role="radiogroup">
+      ${canRes?`<label class="plan"><input type="radio" name="path" value="reserva" ${f.path==='reserva'?'checked':''}><span><b>Reservar mi plaza con ${money(RESERVA)}</b><small>La plaza queda bloqueada hoy. Tú eliges el día en que empiezas a pagar el resto, siempre antes del ${dfmt(dl,{day:'numeric',month:'long'})}.</small></span></label>
+      ${f.path==='reserva'?`<div class="date-row"><label for="pay-start">Empiezo a pagar el</label><input type="date" id="pay-start" value="${f.payStart}" min="${iso(addDays(TODAY,1))}" max="${iso(dl)}"><span class="muted">Ese día te llega el enlace para elegir modalidad.</span></div>`:''}`:''}
+      <label class="plan"><input type="radio" name="path" value="ahora" ${f.path==='ahora'?'checked':''}><span><b>${canRes?'Pagar la formación ahora':'Pagar la homologación'}</b><small>Pago único, 3 plazos con Klarna, cuotas Torch o financiera.</small></span></label>
+      ${f.path==='ahora'?`<div class="subplans">${planOptions(c.price,months,plan,'plan')}</div>`:''}
+      </div></div>
+    <div class="stripe">
+      <div class="stripe-head"><span>Pago seguro · Stripe</span><span class="mono">MODO PRUEBA</span></div>
+      <form class="stripe-body" id="f-pay">
+        <div><p class="eyebrow">Torch Institute</p><div style="font-family:var(--display);font-size:34px;font-weight:600" class="num">${money(due.amount)}</div><p class="muted" style="font-size:14px">${due.label} · ${c.name} · ${wkLabel(w)}</p></div>
+        <div class="field"><label for="c-email">Email</label><input id="c-email" value="${esc(f.datos?.email||'')}" readonly></div>
+        <div class="cardrow">
+          <div class="field"><label for="c-num">Número de tarjeta</label><input id="c-num" class="mono" value="4242 4242 4242 4242" inputmode="numeric"></div>
+          <div class="field"><label for="c-exp">Caducidad</label><input id="c-exp" class="mono" value="12 / 29"></div>
+          <div class="field"><label for="c-cvc">CVC</label><input id="c-cvc" class="mono" value="123"></div>
+        </div>
+        <p class="muted" style="font-size:13px">Tarjeta de prueba: no se cobra nada. En la versión real este paso es la página de pago de Stripe${plan==='klarna'&&f.path==='ahora'?' con Klarna':''}.</p>
+        <div class="actions" style="margin-top:4px"><button class="btn" type="button" id="back2">Atrás</button><button class="btn primary" type="submit" id="paybtn">Pagar ${money(due.amount)}</button></div>
+      </form></div>
+  </div>${summaryCard(c,w)}</div>`}
+  f.step=1;return renderStudent();
+}
+function planOptions(amount,months,cur,name){
+  const q=r2(amount/months);
+  return `${opt(name,'unico','Pago único',money(amount)+' hoy con tarjeta',cur)}
+   ${opt(name,'klarna','3 plazos sin intereses con Klarna','3 × '+money(r2(amount/3))+'. Sujeto a aprobación de Klarna, que paga a la academia desde el primer día.',cur)}
+   ${months>=2?opt(name,'cuotas','Cuotas Torch (mes a mes)',months+' cuotas de '+money(q)+' cargadas solas en tu tarjeta o cuenta. La primera hoy y la última antes de empezar.',cur):'<label class="plan off"><input type="radio" disabled><span><b>Cuotas Torch (mes a mes)</b><small>Disponible con más de un mes de margen hasta la fecha</small></span></label>'}
+   <label class="plan off"><input type="radio" disabled><span><b>Financiera</b><small>Próximamente, cuando haya convenio</small></span></label>`}
+function opt(name,id,t,sub,cur){return `<label class="plan"><input type="radio" name="${name}" value="${id}" ${cur===id?'checked':''}><span><b>${t}</b><small>${sub}</small></span></label>`}
+function todayAmount(c,path,plan,months){
+  if(path==='reserva')return{amount:RESERVA,label:'Reserva de plaza'};
+  if(plan==='klarna')return{amount:r2(c.price/3),label:'1.er plazo con Klarna'};
+  if(plan==='cuotas')return{amount:r2(c.price/months),label:'Cuota 1 de '+months};
+  return{amount:c.price,label:'Pago único'};
+}
+function summaryCard(c,w){const hom=c.kind==='hom';return `<aside class="card summary"><p class="eyebrow">Tu matrícula</p><h3 style="margin-top:6px">${c.name}</h3>
+  <p class="muted">${hom?'Sesión del '+dlong(w.start):'Semana del '+dlong(w.start)+' al '+dlong(w.end)}</p>
+  <dl class="num"><dt>Precio</dt><dd>${hom?money(c.base):money(c.price)}</dd>${hom?`<dt>IVA 21 %</dt><dd>${money(c.price-c.base)}</dd>`:`<dt>Si reservas hoy</dt><dd>${money(RESERVA)}</dd><dt>Resto antes del ${dfmt(deadline(w),{day:'numeric',month:'long'})}</dt><dd>${money(c.price-RESERVA)}</dd>`}
+  <dt class="total">Total</dt><dd class="total">${money(c.price)}</dd></dl>
+  <p class="muted" style="font-size:13px;margin-top:12px">${hom?'Precio de '+money(c.base)+' más IVA del 21 %.':'IVA (21 %) incluido. El alojamiento se paga aparte en metálico.'}</p></aside>`}
+
+function renderArea(){
+  const s=ST(S.me),w=W(s.week),c=COURSES[s.course],[stL,stC]=status(s),hom=c.kind==='hom';
+  const rest=r2(s.total-s.paid);
+  const inv=S.invoices.filter(i=>i.student===s.id);
+  const endPlus=iso(addDays(new Date(w.end),1)).replace(/-/g,'');
+  const gcal='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Torch Institute · '+c.name)+'&dates='+w.start.replace(/-/g,'')+'/'+endPlus+'&details='+encodeURIComponent(hom?'Sesión de homologación CESOL. Trae tu documentación y equipo de protección.':'Formación presencial de 50 h, lunes a viernes. Trae ropa de trabajo y calzado de seguridad.')+'&location='+encodeURIComponent('Gelves, Sevilla');
+  const sched=S.scheduled.filter(x=>x.student===s.id);
+  const months=monthsAvail(w);
+  let pp=S.flow.plan2||'unico';if(pp==='cuotas'&&months<2)pp='unico';
+  let payBox;
+  if(rest>0.01&&sched.length===0&&!S.flow.showPay&&s.mod==='reserva'){
+    payBox=`<div class="card"><p class="eyebrow">Pendiente</p><h2 style="margin-top:6px" class="num">${money(rest)}</h2>
+      <p style="margin-top:6px">Empiezas a pagar el <b>${dfmt(s.payStart,{weekday:'long',day:'numeric',month:'long'})}</b>. Ese día te llega el enlace para elegir: pago único, Klarna, cuotas Torch o financiera.</p>
+      <div class="field" style="margin-top:12px"><label for="area-start">Cambiar la fecha (antes del ${dfmt(deadline(w),{day:'numeric',month:'long'})})</label><input type="date" id="area-start" value="${s.payStart}" min="${iso(addDays(TODAY,1))}" max="${iso(deadline(w))}"></div>
+      <div class="actions"><button class="btn" id="showpay">Prefiero empezar a pagar hoy</button></div></div>`;
+  }else if(rest>0.01&&sched.length===0){
+    payBox=`<div class="card"><p class="eyebrow">Pendiente</p><h2 style="margin-top:6px" class="num">${money(rest)}</h2>
+    <p class="muted">Elige cómo pagar el resto. Plazo: antes del ${dfmt(deadline(w),{day:'numeric',month:'long'})}.</p>
+    <div class="plans" role="radiogroup">${planOptions(rest,months,pp,'plan2')}</div>
+    ${pp==='cuotas'?'<div class="sched num">'+Array.from({length:months},(_,i)=>'<div><span>Cuota '+(i+1)+' · '+dfmt(addMonths(TODAY,i))+'</span><span>'+money(i===months-1?r2(rest-r2(rest/months)*(months-1)):r2(rest/months))+'</span></div>').join('')+'</div>':''}
+    <div class="actions"><button class="btn primary" id="payrest" data-months="${months}">${pp==='unico'?'Pagar '+money(rest):pp==='klarna'?'Continuar con Klarna':'Activar cuotas y pagar la 1.ª'}</button></div></div>`;
+  }else{
+    payBox=`<div class="card"><p class="eyebrow">Pagos</p><h3 style="margin-top:6px">${rest<=0.01?(hom?'Homologación pagada':'Formación pagada'):'Cuotas activas'}</h3>
+    ${sched.length?'<div class="sched num">'+sched.map(x=>'<div><span>'+x.concept+' · '+dfmt(x.date)+'</span><span>'+money(x.amount)+'</span></div>').join('')+'</div><p class="muted" style="font-size:13px;margin-top:8px">Se cargan solas en la fecha indicada.</p>':'<p class="muted">No tienes nada pendiente. Nos vemos en Gelves.</p>'}</div>`;
+  }
+  const aula=!hom&&hasAula(s),ap=aula?aulaProg(s):0;
+  if(!hom&&S.stuView==='aula')return stepper(4)+areaNav(s)+(aula?renderAula(s,S.aulaSel):`<div class="locked">Tu aula se abre con tu primer pago de la formación (pago único, primera cuota o Klarna). La reserva solo bloquea tu plaza.<div class="actions" style="justify-content:center"><button class="btn primary" data-stuview="area">Ir a mis pagos</button></div></div>`);
+  return stepper(4)+(hom?'':areaNav(s))+`
+  <div class="area-head"><div><p class="eyebrow">Tu área de alumno</p><h1>Hola, ${esc(s.name.split(' ')[0])}. Tu plaza está ${rest<=0.01?'confirmada':'reservada'}.</h1></div><span class="pill ${stC}">${stL}</span></div>
+  <div class="ticket num"><div><span>${hom?'Servicio':'Formación'}</span><b>${c.name}</b></div><div><span>${hom?'Fecha':'Semana'}</span><b>${wkLabel(w)}</b></div><div><span>Lugar</span><b>Nave · Gelves</b></div><div><span>Pagado</span><b>${money(s.paid)} / ${money(s.total)}</b></div></div>
+  <div class="layout-2" style="margin-top:18px">
+    <div class="section-gap">
+      <div class="card"><h3>Todo listo en tu alta</h3>
+        <ul class="tasks" style="margin-top:8px">
+          <li><span class="tick">✓</span><span class="txt">${inv.length>1?'Facturas':'Factura'} con tu nombre y la fecha<small>${inv.map(i=>i.num).join(' · ')}</small></span><button class="btn small" data-inv="${inv[inv.length-1]?.num||''}">Ver factura</button></li>
+          <li><span class="tick">✓</span><span class="txt">Fecha en tu calendario<small>${hom?'Evento del día de la sesión':'Evento de lunes a viernes'} con la dirección</small></span><a class="btn small" href="${gcal}" target="_blank" rel="noopener">Añadir a Google Calendar</a></li>
+          <li><span class="tick">✓</span><span class="txt">Comunidad de alumnos en WhatsApp<small>Avisos, tu promoción y ofertas de empleo</small></span><button class="btn small" id="wa">Unirme</button></li>
+          ${hom?`<li><span class="tick">✓</span><span class="txt">Tu homologación<small>Fecha, lugar y qué se evalúa, justo debajo</small></span></li>`:aula?`<li><span class="tick">✓</span><span class="txt">Aula abierta<small>${ap} % del temario completado</small></span><button class="btn small" data-stuview="aula">Entrar al aula</button></li>`:`<li><span class="tick wait">·</span><span class="txt">Aula<small>Se abre con tu primer pago de la formación</small></span></li>`}
+          <li><span class="tick">✓</span><span class="txt">Eduardo ya tiene tu matrícula<small>Te escribirá unos días antes con lo que tienes que traer</small></span></li>
+        </ul></div>
+      ${hom?homCard(s):`<div class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap"><h2>Aula</h2>${aula?`<span class="muted num">${ap} % completado</span>`:''}</div>
+        ${aula?`<div class="progress" style="margin-block:10px 14px"><i style="width:${ap}%"></i></div><p class="muted">${coursesFor(s).map(x=>esc(x.t)).join(' · ')}</p><div class="actions"><button class="btn primary" data-stuview="aula">Entrar al aula</button></div>`
+        :`<p class="muted" style="margin-top:8px">Las clases grabadas se abren con tu primer pago de la formación (pago único, primera cuota o Klarna). La reserva solo bloquea tu plaza.</p>`}</div>`}
+    </div>
+    <div class="section-gap">${payBox}
+      ${hom?'':`<div class="card"><p class="eyebrow">Alojamiento</p><p style="margin-top:6px">${s.aloj?'Reservado de lunes a viernes. Paga '+money(ALOJ)+' en metálico al llegar a la nave.':'Sin alojamiento.'}</p></div>`}
+    </div>
+  </div>`;
+}
+
+/* ================= AULA ================= */
+const BLOBS={};
+const RULES={libre:'Abierto desde el principio',secuencial:'Se abre al terminar el módulo anterior',fecha:'Se abre X días después del primer pago',manual:'Lo abre un tutor'};
+function firstRealPay(s){const ps=S.payments.filter(p=>p.student===s.id&&p.concept!=='Reserva de plaza').map(p=>p.date).sort();return ps[0]||null}
+function hasAula(s){return s.course!=='hom'&&!!firstRealPay(s)}
+function coursesFor(s){return S.aula.courses.filter(c=>c.aud.includes(s.course))}
+const doneSet=s=>new Set(S.done[s.id]||[]);
+function modState(s,c,mi){const m=c.mods[mi];if(!s)return{open:true,reason:'Vista de tutor'};
+  if(S.unlocks[s.id]?.[m.id])return{open:true,reason:'Abierto por un tutor'};
+  if(m.rule==='libre')return{open:true,reason:''};
+  if(m.rule==='secuencial'){if(mi===0)return{open:true,reason:''};const prev=c.mods[mi-1];const d=doneSet(s);const ok=prev.lessons.every(l=>d.has(l.id))&&modState(s,c,mi-1).open;return ok?{open:true,reason:''}:{open:false,reason:'Se abre al terminar «'+prev.t+'»'}}
+  if(m.rule==='fecha'){const f=firstRealPay(s);const at=addDays(new Date(f),m.days);return TODAY>=at?{open:true,reason:''}:{open:false,reason:'Se abre el '+dfmt(at,{day:'numeric',month:'long'})}}
+  return{open:false,reason:'Lo abre tu tutor cuando estés listo'}}
+function lessonOpen(s,c,mi,li){if(!s)return true;if(!modState(s,c,mi).open)return false;if(li===0)return true;return doneSet(s).has(c.mods[mi].lessons[li-1].id)}
+function courseProg(s,c){const all=c.mods.flatMap(m=>m.lessons);const d=doneSet(s);const n=all.filter(l=>d.has(l.id)).length;return{n,t:all.length,p:all.length?Math.round(n/all.length*100):0}}
+function aulaProg(s){if(!hasAula(s))return null;let n=0,t=0;coursesFor(s).forEach(c=>{const x=courseProg(s,c);n+=x.n;t+=x.t});return t?Math.round(n/t*100):0}
+function seedProgress(){const r=rng(99);S.students.forEach(s=>{if(!hasAula(s))return;const k=Math.floor(r()*14);let cnt=0;S.done[s.id]=[];
+  coursesFor(s).forEach(c=>c.mods.forEach((m,mi)=>m.lessons.forEach((l,li)=>{if(cnt<k&&lessonOpen(s,c,mi,li)){S.done[s.id].push(l.id);cnt++}})))})}
+function findLesson(c,id){for(let mi=0;mi<c.mods.length;mi++){const li=c.mods[mi].lessons.findIndex(l=>l.id===id);if(li>=0)return{mi,li,l:c.mods[mi].lessons[li]}}return null}
+function renderAula(s,sel){ // s = alumno o null (tutor)
+  const courses=s?coursesFor(s):S.aula.courses;
+  const c=courses.find(x=>x.id===sel.course);
+  if(!c)return `<div class="aula-grid">${courses.map(x=>{const pr=s?courseProg(s,x):null;const opens=x.mods.some((m,mi)=>modState(s,x,mi).open);
+    return `<button class="course-card" data-acourse="${x.id}"><span class="cover"><span class="cover-arc" aria-hidden="true"></span><b>${esc(x.t)}</b></span>
+     <span class="cc-body"><span class="muted">${esc(x.desc)}</span><span class="num muted" style="font-size:13px">${plural(x.mods.length,'módulo','módulos')} · ${plural(x.mods.reduce((a,m)=>a+m.lessons.length,0),'capítulo','capítulos')}</span>
+     ${pr?`<span class="progress"><i style="width:${pr.p}%"></i></span><span class="num" style="font-size:13px">${pr.p} % completado</span>`:`<span class="chips">${x.aud.map(a=>'<span>'+COURSES[a].tag+'</span>').join('')}</span>`}
+     ${!opens?'<span class="pill p-neutral">Bloqueado</span>':''}</span></button>`}).join('')}</div>`;
+  const d=s?doneSet(s):new Set();
+  let cur=sel.lesson&&findLesson(c,sel.lesson);
+  if(!cur||!lessonOpen(s,c,cur.mi,cur.li)){cur=null;outer:for(let mi=0;mi<c.mods.length;mi++)for(let li=0;li<c.mods[mi].lessons.length;li++){if(lessonOpen(s,c,mi,li)&&!d.has(c.mods[mi].lessons[li].id)){cur={mi,li,l:c.mods[mi].lessons[li]};break outer}}
+    if(!cur&&c.mods[0]?.lessons[0])cur={mi:0,li:0,l:c.mods[0].lessons[0]}}
+  const flat=c.mods.flatMap((m,mi)=>m.lessons.map((l,li)=>({mi,li,l})));const idx=cur?flat.findIndex(x=>x.l.id===cur.l.id):-1;const next=flat.slice(idx+1).find(x=>lessonOpen(s,c,x.mi,x.li));
+  const pr=s?courseProg(s,c):null;
+  return `<div class="aula-top"><button class="linkbtn" data-acourse="">← Todos los cursos</button>${pr?`<span class="num muted" style="font-size:13.5px">${pr.n} de ${pr.t} capítulos · ${pr.p} %</span>`:'<span class="pill p-info">Vista de tutor: todo desbloqueado</span>'}</div>
+  <div class="aula-layout"><nav class="mod-list" aria-label="Temario"><h3 style="padding:12px 14px 4px">${esc(c.t)}</h3>
+   ${c.mods.map((m,mi)=>{const ms=modState(s,c,mi);return `<div class="mod ${ms.open?'':'is-locked'}"><div class="mod-h"><span class="eyebrow">Módulo ${mi+1}</span><b>${esc(m.t)}</b>${ms.reason&&ms.reason!=='Vista de tutor'?`<small>${ms.open?'':'<span class="lock" aria-hidden="true"></span>'}${esc(ms.reason)}</small>`:''}</div>
+    ${m.lessons.map((l,li)=>{const op=lessonOpen(s,c,mi,li),dn=d.has(l.id),on=cur&&cur.l.id===l.id;return `<button class="les ${on?'on':''}" ${op?`data-alesson="${l.id}"`:'disabled'}><span class="st ${dn?'dn':op?'op':'lk'}" aria-hidden="true">${dn?'✓':''}</span><span>${esc(l.t)}</span><small class="num">${l.dur} min</small></button>`}).join('')}</div>`}).join('')}
+  </nav>
+  <section class="lesson-view">${cur?`
+   <div class="player">${BLOBS[cur.l.id]?`<video controls src="${BLOBS[cur.l.id]}"></video>`:`<div class="player-ph"><span class="play" aria-hidden="true"></span><span>${cur.l.video?'Vídeo: '+esc(cur.l.video):'Aquí se reproduce la clase grabada'}</span></div>`}</div>
+   <p class="eyebrow" style="margin-top:14px">Módulo ${cur.mi+1} · ${esc(c.mods[cur.mi].t)} · <span class="num">${cur.l.dur} min</span></p>
+   <h2 style="margin-top:4px">${esc(cur.l.t)}</h2>${cur.l.desc?`<p class="muted" style="margin-top:8px">${esc(cur.l.desc)}</p>`:''}
+   <div class="actions">${s?`<button class="btn ${d.has(cur.l.id)?'':'primary'}" data-adone="${cur.l.id}">${d.has(cur.l.id)?'Marcar como no vista':'Marcar como completada'}</button>`:''}${next?`<button class="btn" data-alesson="${next.l.id}">Siguiente capítulo →</button>`:''}</div>`
+   :'<p class="muted">Este curso todavía no tiene capítulos.</p>'}</section></div>`;
+}
+function homCard(s){const w=W(s.week);const h=s.hom||{status:'pendiente'};
+  return `<div class="card"><p class="eyebrow">Tu homologación CESOL</p><h2 style="margin-top:6px">${dfmt(w.start,{weekday:'long',day:'numeric',month:'long'})} · 08:30</h2>
+   <p style="margin-top:6px">Nave de Torch Institute · <span class="muted">[dirección exacta de la nave]</span> · Gelves (Sevilla)</p>
+   <div class="grid2" style="margin-top:14px"><div><b>Qué se evalúa</b><ul class="plain">
+     <li>Prueba práctica: soldar una probeta en el proceso, material y posición que solicitas.</li><li>Inspección visual del cordón por el examinador.</li><li>Ensayos de la probeta para comprobar que no hay defectos internos.</li><li>Referencia: norma UNE-EN ISO 9606-1.</li></ul></div>
+    <div><b>Qué traer</b><ul class="plain"><li>DNI, NIE o pasaporte.</li><li>Ropa de trabajo y calzado de seguridad.</li><li>Pantalla y guantes, si tienes los tuyos.</li></ul></div></div>
+   <div class="hom-result">${h.status==='apta'?`<span class="pill p-good">Apto</span><p>Has superado la homologación. Tu certificado está adjunto y también te lo hemos enviado por correo.</p><span class="file-chip">${esc(h.cert)}</span>`
+    :h.status==='no_apta'?`<span class="pill p-crit">No apto</span><p>Esta vez no ha sido posible.${h.motivos?' Motivos del examinador: '+esc(h.motivos):''}</p><p class="muted" style="font-size:13.5px">Escríbenos y te ayudamos a preparar la siguiente convocatoria.</p>`
+    :`<span class="pill p-warn">Pendiente</span><p class="muted">El resultado aparecerá aquí y te llegará por correo en cuanto CESOL lo verifique.</p>`}</div></div>`}
+
+function areaNav(s){return `<div class="filters" role="group" aria-label="Secciones" style="margin-bottom:16px"><button data-stuview="area" aria-pressed="${S.stuView!=='aula'}">Mi matrícula</button><button data-stuview="aula" aria-pressed="${S.stuView==='aula'}">Aula${hasAula(s)?'':' · bloqueada'}</button></div>`}
+function issueInvoice(s,concept,amount){
+  S.invSeq++;const num='TI-'+TODAY.getFullYear()+'-'+String(S.invSeq).padStart(4,'0');
+  S.invoices.push({num,student:s.id,date:iso(TODAY),concept,amount});sendMail(s.email,'invoice',{num,concept,amount});return num}
+
+function showInvoice(num,fromMail){
+  const inv=S.invoices.find(i=>i.num===num);if(!inv)return;const cu=me();
+  if(!fromMail&&!(cu&&((cu.type==='alumno'&&cu.student===inv.student)||(cu.type==='equipo'&&(cu.perms.includes('alumnos')||cu.perms.includes('finanzas')))))){toast('No tienes permiso para ver esa factura');return}
+  const s=ST(inv.student),w=W(s.week),c=COURSES[s.course];
+  const base=r2(inv.amount/1.21),iva=r2(inv.amount-base);
+  const desc=c.kind==='hom'?'Prueba de homologación CESOL · sesión del '+dlong(w.start):c.name+' · 50 h presenciales · semana del '+dlong(w.start)+' al '+dlong(w.end);
+  $('#modal-root').innerHTML=`<div class="modal" id="mdl" role="dialog" aria-modal="true" aria-label="Factura ${num}"><div class="modal-box">
+   <div class="modal-top"><b>Factura ${num}</b><button class="btn small" id="mclose">Cerrar</button></div>
+   <div class="invoice">
+    <div class="inv-head"><div class="inv-brand"><span class="mark" aria-hidden="true"></span><div><b>TORCH INSTITUTE</b><small>Formación de élite en soldadura TIG</small></div></div>
+     <div class="inv-meta"><strong>FACTURA</strong>${num}<br>Fecha: ${dlong(inv.date)}</div></div>
+    <div class="inv-parties"><div><h4>Emisor</h4>Torch Institute<br>Titular autónomo · NIF pendiente<br>Gelves (Sevilla)</div>
+     <div><h4>Alumno</h4>${esc(s.name)}<br>${esc(s.dni||'Documento registrado en la ficha')}<br>${esc(s.dir||'Dirección fiscal registrada')}</div></div>
+    <table><thead><tr><th>Concepto</th><th class="r">Base</th><th class="r">IVA 21 %</th><th class="r">Total</th></tr></thead>
+     <tbody><tr><td><b>${inv.concept}</b><br><span style="color:#5A616C">${desc}</span></td><td class="r num">${EUR2.format(base)}</td><td class="r num">${EUR2.format(iva)}</td><td class="r num">${EUR2.format(inv.amount)}</td></tr></tbody></table>
+    <div class="inv-tot num"><span>Base imponible</span><span>${EUR2.format(base)}</span><span>IVA 21 %</span><span>${EUR2.format(iva)}</span><span class="g">Total</span><span class="g">${EUR2.format(inv.amount)}</span></div>
+    <div class="inv-foot"><span class="qr" aria-hidden="true"></span><span>Documento de demostración. En la versión real, la factura la emite el software de facturación adaptado a Verifactu e incluye su código QR. Importe total: ${money(s.total)} IVA incluido. Pagado hasta hoy: ${money(s.paid)}.</span></div>
+   </div></div></div>`;
+  $('#mclose').onclick=fromMail?()=>showMailbox():closeModal;$('#mdl').onclick=e=>{if(e.target.id==='mdl')closeModal()};$('#mclose').focus();
+}
+function closeModal(){$('#modal-root').innerHTML=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+/* ================= PANEL ================= */
+function monthTotals(){
+  const inc=[],exp=[],labels=[];
+  for(let i=5;i>=0;i--){const d=addMonths(new Date(TODAY.getFullYear(),TODAY.getMonth(),1),-i),k=monthKey(d),h=5-i;
+    labels.push(d.toLocaleDateString('es-ES',{month:'short'}).replace('.',''));
+    inc.push(r2((S.history.inc[h]||0)+S.payments.filter(p=>monthKey(p.date)===k).reduce((a,p)=>a+p.amount,0)));
+    exp.push(r2((S.history.exp[h]||0)+S.expenses.filter(e=>monthKey(e.date)===k).reduce((a,e)=>a+e.amount,0)+S.commissions.filter(c=>monthKey(c.date)===k).reduce((a,c)=>a+c.amount,0)+metaSpendMonth(k)));}
+  return {inc,exp,labels,pm:inc[5],em:exp[5]};
+}
+function renderPanel(u,tabs){
+  return `<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap"><div><p class="eyebrow">Panel de gestión · ${esc(u.name)}</p><h1>${TODAY.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,m=>m.toUpperCase())}</h1></div>
+   <span class="muted" style="font-size:13.5px">Actualizado con cada pago · CRM conectado: GoHighLevel</span></div>
+   <div class="tabs" role="tablist">${tabs.map(t=>`<button role="tab" data-tab="${t[0]}" aria-selected="${S.tab===t[0]}">${t[1]}</button>`).join('')}</div>
+   ${({resumen:pResumen,convocatorias:pConv,alumnos:pAlumnos,finanzas:pFin,marketing:pMarketing,comercial:pComercial,aula:pAula,homologaciones:pHom,usuarios:pUsuarios})[S.tab]()}`;
+}
+function pResumen(){
+  const m=monthTotals();const seats=S.weeks.reduce((a,w)=>a+w.cap,0),occ=S.students.length;
+  const pending=S.students.reduce((a,s)=>a+Math.max(0,s.total-s.paid),0);
+  const feed=[...S.payments].sort((a,b)=>b.date.localeCompare(a.date)||(isNew(b.id)-isNew(a.id))).slice(0,7);
+  const nPay=S.payments.filter(p=>monthKey(p.date)===THIS_M).length;
+  return `<div class="kpis num">
+    <div class="kpi"><span class="eyebrow">Cobrado este mes</span><b>${money(m.pm)}</b><small>${plural(nPay,'cobro','cobros')}</small></div>
+    <div class="kpi"><span class="eyebrow">Gastos del mes</span><b>${money(m.em)}</b><small>Con Meta Ads y comisiones</small></div>
+    <div class="kpi"><span class="eyebrow">Margen del mes</span><b style="color:${m.pm-m.em>=0?'var(--good)':'var(--crit)'}">${money(r2(m.pm-m.em))}</b><small>${m.pm?Math.round((m.pm-m.em)/m.pm*100):0} % sobre lo cobrado</small></div>
+    <div class="kpi"><span class="eyebrow">Plazas vendidas</span><b>${occ} / ${seats}</b><small>Próximos 3 meses · ${Math.round(occ/seats*100)} %</small></div>
+    <div class="kpi"><span class="eyebrow">Pendiente de cobro</span><b>${money(r2(pending))}</b><small>${plural(S.scheduled.length,'cuota programada','cuotas programadas')}</small></div>
+  </div>
+  <div class="row">
+    <div class="card"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline"><h3>Ingresos y gastos, últimos 6 meses</h3>
+      <div class="legend"><span><i style="background:var(--c-in)"></i>Ingresos</span><span><i style="background:var(--c-out)"></i>Gastos</span></div></div>
+      <div class="chart-wrap" id="chart">${chartSVG(m)}</div>
+      <p class="muted" style="font-size:12.5px">Datos de ejemplo. Pasa el ratón por una barra para ver su importe.</p></div>
+    <div class="card"><h3>Últimos cobros</h3><ul class="feed num" style="margin-top:8px">${feed.map(p=>{const s=ST(p.student);return `<li class="${isNew(p.id)?'is-new':''}"><span>${esc(s?.name)}<br><small class="muted">${p.concept} · ${p.method}</small></span><span style="text-align:right"><b>${money(p.amount)}</b><br><small class="muted">${dfmt(p.date)}</small></span></li>`}).join('')}</ul></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Próximas fechas</h3><div class="convs" style="margin-top:12px">${S.weeks.slice(0,4).map(convCard).join('')}</div></div>`;
+}
+function chartSVG(m){
+  const Wd=640,H=230,pl=48,pr=12,pt=14,pb=30;const max=Math.max(...m.inc,...m.exp);
+  const step=max>15000?5000:max>6000?2500:1000;const yTop=Math.ceil(max/step)*step||step;
+  const y=v=>pt+(H-pt-pb)*(1-v/yTop);const gw=(Wd-pl-pr)/6;const bw=Math.min(22,gw/3.2);
+  let g='';for(let v=0;v<=yTop;v+=step){g+=`<line x1="${pl}" x2="${Wd-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/><text x="${pl-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v?(v/1000)+' k€':'0'}</text>`}
+  const bar=(x,v,col,lab)=>{const yy=y(v),h=Math.max(0,y(0)-yy),rr=Math.min(4,h);
+    return `<path d="M${x} ${y(0)}V${yy+rr}Q${x} ${yy} ${x+rr} ${yy}H${x+bw-rr}Q${x+bw} ${yy} ${x+bw} ${yy+rr}V${y(0)}Z" fill="${col}"/><rect class="hit" x="${x-3}" y="${pt}" width="${bw+6}" height="${H-pt-pb}" fill="transparent" data-tip="${lab}: ${money(v)}"/>`};
+  let b='';m.labels.forEach((l,i)=>{const cx=pl+gw*i+gw/2;
+    b+=bar(cx-bw-1,m.inc[i],'var(--c-in)',l+' · Ingresos')+bar(cx+1,m.exp[i],'var(--c-out)',l+' · Gastos');
+    b+=`<text x="${cx}" y="${H-10}" text-anchor="middle" font-size="12" fill="${i===5?'var(--ink)':'var(--muted)'}" font-weight="${i===5?600:400}">${l}</text>`});
+  return `<svg viewBox="0 0 ${Wd} ${H}" width="100%" role="img" aria-label="Ingresos y gastos de los últimos 6 meses" style="display:block;margin-top:10px">${g}<line x1="${pl}" x2="${Wd-pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line-strong)"/>${b}</svg>`;
+}
+function convCard(w){const list=S.students.filter(s=>s.week===w.id);const free=w.cap-list.length;
+  const exp=S.expenses.filter(e=>e.week===w.id).reduce((a,e)=>a+e.amount,0);
+  return `<div class="conv"><header><div><b>${wkLabel(w)}</b><br><span class="chip ${w.course!=='ini'?'adv':''}">${COURSES[w.course].tag}</span></div>
+   ${free<=0?'<span class="pill p-good">Completa</span>':'<span class="pill '+(free<=2?'p-warn':'p-neutral')+'">'+(free===1?'1 libre':free+' libres')+'</span>'}</header>
+   <span class="seats" aria-label="${list.length} de ${w.cap} plazas ocupadas">${Array.from({length:w.cap},(_,i)=>'<span class="seat '+(i<list.length?(isNew(list[i].id)?'you':'taken'):'')+'"></span>').join('')}</span>
+   ${list.length?'<ol>'+list.map(s=>'<li class="'+(isNew(s.id)?'is-new':'')+'">'+esc(s.name)+' · '+status(s)[0].toLowerCase()+'</li>').join('')+'</ol>':'<p class="muted" style="font-size:13.5px">Sin alumnos todavía</p>'}
+   <small class="muted num">Vendido ${money(list.reduce((a,s)=>a+s.total,0))} · gastos imputados ${money(exp)}</small></div>`}
+function pConv(){return `<p class="muted" style="margin-bottom:14px">Formaciones de lunes a viernes para ${CAP} alumnos y sesiones de homologación en sábado para ${CAP_HOM} profesionales. El alumno solo ve los próximos 3 meses; al llenarse, la fecha se cierra sola.</p><div class="convs">${S.weeks.map(convCard).join('')}</div>`}
+function pAlumnos(){
+  const q=(S.q||'').toLowerCase();
+  const rows=[...S.students].sort((a,b)=>(isNew(b.id)-isNew(a.id))||W(a.week).start.localeCompare(W(b.week).start)).filter(s=>!q||s.name.toLowerCase().includes(q)||s.comercial.toLowerCase().includes(q)||COURSES[s.course].tag.toLowerCase().includes(q));
+  return `<div class="toolbar"><input id="q" type="search" placeholder="Buscar alumno, formación o comercial" value="${esc(S.q||'')}" aria-label="Buscar alumno, formación o comercial"><span class="muted num">${plural(rows.length,'alumno','alumnos')}</span></div>
+  <div class="table-wrap"><table class="num"><thead><tr><th>Alumno</th><th>Formación</th><th>Fecha</th><th>Estado</th><th>Pagado</th><th>Modalidad</th><th>Comercial</th><th>Aula</th><th>GHL</th></tr></thead><tbody>
+  ${rows.map(s=>{const [l,c]=status(s);const w=W(s.week);return `<tr class="${isNew(s.id)?'is-new':''}"><td><b>${esc(s.name)}</b><br><small class="muted">${esc(s.email)}</small></td><td>${COURSES[s.course].tag}</td><td>${wkLabel(w)}</td><td><span class="pill ${c}">${l}</span></td>
+  <td style="white-space:nowrap"><span class="mini-bar"><i style="width:${Math.min(100,s.paid/s.total*100)}%"></i></span>${money(s.paid)} <small class="muted">/ ${money(s.total)}</small></td><td>${s.mod==='reserva'&&s.paid<s.total?'Reserva<br><small class="muted">Paga desde el '+dfmt(s.payStart)+'</small>':MODN[s.mod]}</td><td>${esc(s.comercial)}</td><td>${s.course==='hom'?(s.hom?.status==='apta'?'<span class="pill p-good">Apto</span>':s.hom?.status==='no_apta'?'<span class="pill p-crit">No apto</span>':'<small class="muted">Homologación</small>'):hasAula(s)?aulaProg(s)+' %':'<small class="muted">Bloqueada</small>'}</td><td><span class="pill p-good">Cliente</span><br><small class="muted">${s.paid>=s.total-0.01?'Pagado':s.mod==='cuotas'?'En cuotas':'Reserva'}</small></td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+function pFin(){
+  const m=monthTotals();
+  const pays=[...S.payments].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+  const comm=r2(S.commissions.filter(c=>monthKey(c.date)===THIS_M).reduce((a,c)=>a+c.amount,0));
+  const meta=metaSpendMonth(THIS_M);
+  const exps=[...S.expenses].sort((a,b)=>b.date.localeCompare(a.date));
+  const margin=S.weeks.filter(w=>taken(w.id)>0).map(w=>{const st=S.students.filter(s=>s.week===w.id);const sold=st.reduce((a,s)=>a+s.total,0),cob=st.reduce((a,s)=>a+s.paid,0);
+    const cm=S.commissions.filter(c=>st.some(s=>s.id===c.student)).reduce((a,c)=>a+c.amount,0);const ex=S.expenses.filter(e=>e.week===w.id).reduce((a,e)=>a+e.amount,0);return {w,n:st.length,sold,cob,cm,ex,mg:sold-cm-ex}});
+  return `<div class="kpis num" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+   <div class="kpi"><span class="eyebrow">Ingresos del mes</span><b>${money(m.pm)}</b></div>
+   <div class="kpi"><span class="eyebrow">Gastos del mes</span><b>${money(m.em)}</b><small>${money(meta)} de Meta Ads · ${money(comm)} de comisiones</small></div>
+   <div class="kpi"><span class="eyebrow">Margen del mes</span><b>${money(r2(m.pm-m.em))}</b></div></div>
+  <div class="card" style="margin-top:16px"><h3>Registrar un gasto</h3><p class="muted" style="font-size:14px;margin-top:4px">Foto del ticket desde el móvil y listo. Se suma al panel al momento.</p>
+   <form class="expense-form" id="f-exp" style="margin-top:14px">
+    <div class="field"><label for="e-concept">Concepto</label><input id="e-concept" value="Botellas de argón (2)" required></div>
+    <div class="field"><label for="e-cat">Categoría</label><select id="e-cat">${CATS.map(c=>'<option'+(c.startsWith('Consumibles')?' selected':'')+'>'+c+'</option>').join('')}</select></div>
+    <div class="field"><label for="e-amount">Importe (€, IVA incl.)</label><input id="e-amount" type="number" min="0" step="0.01" value="164" required></div>
+    <div class="field"><label for="e-date">Fecha</label><input id="e-date" type="date" value="${iso(TODAY)}"></div>
+    <div class="field"><label for="e-week">Imputar a la fecha</label><select id="e-week"><option value="">General (sin fecha)</option>${S.weeks.map(w=>'<option value="'+w.id+'">'+wkLabel(w)+' · '+COURSES[w.course].tag+'</option>').join('')}</select></div>
+    <div class="field"><label for="e-file">Foto del ticket</label><input id="e-file" type="file" accept="image/*,.pdf"></div>
+    <div><button class="btn primary" type="submit">Añadir gasto</button></div>
+   </form></div>
+  <div class="row">
+   <div><h3 style="margin-bottom:10px">Gastos</h3><div class="table-wrap"><table class="num"><thead><tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th class="r">Importe</th></tr></thead><tbody>
+    ${exps.map(e=>`<tr class="${isNew(e.id)?'is-new':''}"><td>${dfmt(e.date)}</td><td>${esc(e.concept)}${e.ticket?'<br><small class="muted">Ticket: '+esc(e.ticket)+'</small>':''}</td><td>${esc(e.cat)}${e.week&&W(e.week)?'<br><small class="muted">'+wkLabel(W(e.week))+'</small>':''}</td><td class="r">${money(e.amount)}</td></tr>`).join('')}
+    <tr><td>Este mes</td><td>Publicidad Meta Ads</td><td><span class="pill p-neutral">Automático</span></td><td class="r">${money(meta)}</td></tr>
+    <tr><td>Este mes</td><td>Comisiones comerciales (10 %)</td><td><span class="pill p-neutral">Automático</span></td><td class="r">${money(comm)}</td></tr>
+   </tbody></table></div></div>
+   <div><h3 style="margin-bottom:10px">Últimos ingresos</h3><div class="table-wrap"><table class="num"><thead><tr><th>Fecha</th><th>Alumno</th><th class="r">Importe</th></tr></thead><tbody>
+    ${pays.map(p=>`<tr class="${isNew(p.id)?'is-new':''}"><td>${dfmt(p.date)}</td><td>${esc(ST(p.student)?.name)}<br><small class="muted">${p.concept}</small></td><td class="r">${money(p.amount)}</td></tr>`).join('')}
+   </tbody></table></div>
+   ${S.scheduled.length?`<h3 style="margin-block:16px 10px">Cuotas programadas</h3><div class="table-wrap"><table class="num"><thead><tr><th>Fecha</th><th>Alumno</th><th class="r">Importe</th></tr></thead><tbody>${[...S.scheduled].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8).map(x=>`<tr><td>${dfmt(x.date)}</td><td>${esc(ST(x.student)?.name)}<br><small class="muted">${x.concept}</small></td><td class="r">${money(x.amount)}</td></tr>`).join('')}</tbody></table></div>`:''}</div>
+  </div>
+  <h3 style="margin-block:22px 10px">Margen por fecha de formación</h3>
+  <div class="table-wrap"><table class="num"><thead><tr><th>Fecha</th><th class="r">Alumnos</th><th class="r">Vendido</th><th class="r">Cobrado</th><th class="r">Comisiones</th><th class="r">Gastos imputados</th><th class="r">Margen</th></tr></thead><tbody>
+   ${margin.map(x=>`<tr><td>${wkLabel(x.w)} <span class="chip ${x.w.course!=='ini'?'adv':''}">${COURSES[x.w.course].tag}</span></td><td class="r">${x.n}/${x.w.cap}</td><td class="r">${money(x.sold)}</td><td class="r">${money(r2(x.cob))}</td><td class="r">${money(x.cm)}</td><td class="r">${money(x.ex)}</td><td class="r"><b>${money(x.mg)}</b></td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><div><h3>Exportar para el gestor</h3><p class="muted" style="font-size:14px">Ingresos y gastos del mes con base, IVA y total por separado.</p></div><button class="btn" id="exp-csv">Generar CSV</button></div>
+   <div id="csv-out"></div></div>`;
+}
+
+/* ---------- Marketing · Meta Ads ---------- */
+function agg(ads,dayIdx){const o={spend:0,metaLeads:0,leads:0,qual:0,citas:0,shows:0,cli:0,rev:0};
+  ads.forEach(a=>{if(dayIdx==null){for(const k in o)o[k]+=a[k]}else{['spend','metaLeads','leads','qual','citas','shows','cli'].forEach(k=>o[k]+=a.daily[k][dayIdx]);o.rev+=a.daily.cli[dayIdx]*COURSES[a.svc].price}});
+  o.spend=r2(o.spend);return o}
+function objFor(svc,ads){if(svc!=='all')return OBJ[svc];
+  const by={};ads.forEach(a=>by[a.svc]=(by[a.svc]||0)+a.spend);const tot=Object.values(by).reduce((x,y)=>x+y,0);const o={};
+  STAGES.forEach(([k])=>{o[k]=r2(Object.entries(by).reduce((x,[s,v])=>x+OBJ[s][k]*v/tot,0))});return o}
+function sem(cost,obj){if(!isFinite(cost))return 'crit';const r=cost/obj;return r<=1.1?'good':r<=2.5?'warn':'crit'}
+function costCell(spend,n,obj){const c=n?spend/n:Infinity;return `<span class="cost"><span class="sem-${sem(c,obj)}"><span class="dot"></span>${cmoney(c)}</span><small>n = ${n}</small></span>`}
+function decision(a){const o=OBJ[a.svc];const cpa=a.cli?a.spend/a.cli:Infinity;const cShow=a.shows?a.spend/a.shows:Infinity;
+  if(cShow>2.5*o.shows&&cpa>2*o.cli)return['Matar','p-crit'];if(cpa<=o.cli)return['Escalar','p-good'];return['Mantener','p-info']}
+function pMarketing(){
+  const svc=S.mkSvc||'all';const ads=META.ads.filter(a=>svc==='all'||a.svc===svc);const t=agg(ads);const o=objFor(svc,ads);
+  const cac=t.cli?t.spend/t.cli:Infinity,roas=t.spend?t.rev/t.spend:0,infl=t.leads?t.metaLeads/t.leads:0,fant=t.leads?(t.leads-t.qual)/t.leads:0;
+  // cascade
+  let neck=-1,worst=2;STAGES.forEach(([k],i)=>{if(i===0)return;const p=t[STAGES[i-1][0]]?t[k]/t[STAGES[i-1][0]]:0;if(p<worst){worst=p;neck=i}});
+  const cascade=STAGES.map(([k,l],i)=>{const n=t[k],prev=i?t[STAGES[i-1][0]]:n,p=i?(prev?n/prev:0):1;
+    return `<div class="cstep ${i===neck?'neck':''}"><span>${l}${i===STAGES.length-1?' <b>★</b>':''}</span><span class="cbar"><i style="width:${t.leads?n/t.leads*100:0}%"></i></span><span class="conv-pct num">${i?Math.round(p*100)+' %':''}</span><span class="num" style="text-align:right">${costCell(t.spend,n,o[k])}</span></div>`}).join('');
+  // days
+  const D=META.days.length;const daysAgg=META.days.map((d,i)=>({d,...agg(ads,i)}));
+  const last15=daysAgg.slice(-15).reverse();
+  // weeks for ladder (last 4 blocks of 7 days)
+  const wk=[0,1,2,3].map(b=>{const sl=daysAgg.slice(D-7*(b+1),D-7*b);return {from:sl[0].d,to:sl[sl.length-1].d,leads:sl.reduce((x,y)=>x+y.leads,0),citas:sl.reduce((x,y)=>x+y.citas,0),cli:sl.reduce((x,y)=>x+y.cli,0)}}).reverse();
+  const sustained=wk.every(x=>x.citas>50);const avgC=Math.round(wk.reduce((x,y)=>x+y.citas,0)/4);
+  // formats
+  const fmts=['Vídeo','Imagen','Carrusel'].map(f=>({f,...agg(ads.filter(a=>a.fmt===f))})).filter(x=>x.spend>0);
+  const services=['ini','adv','hom'].map(s=>({s,...agg(META.ads.filter(a=>a.svc===s))}));
+  const svcBtn=(id,l)=>`<button data-svc="${id}" aria-pressed="${svc===id}">${l}</button>`;
+  return `<div class="mk-head"><div><p class="muted" style="font-size:14px">Responsable de marketing y ventas: <b style="color:var(--ink)">John Martin</b> · Últimos 30 días · Fase de cuenta: <b style="color:var(--ink)">Aprendizaje</b> · Optimización: Lead</p>
+    <p class="muted" style="font-size:12.5px">El gasto sale de Meta; los leads, citas y clientes, del pipeline de GoHighLevel (GHL). Datos de ejemplo.</p></div>
+    <div class="filters" role="group" aria-label="Filtrar por servicio">${svcBtn('all','Todos')}${svcBtn('ini','Iniciación')}${svcBtn('adv','Avanzada')}${svcBtn('hom','Homologación')}</div></div>
+  <div class="kpis num">
+    <div class="kpi"><span class="eyebrow">Inversión<span class="src">Meta</span></span><b>${money(Math.round(t.spend))}</b><small>${plural(ads.length,'anuncio activo','anuncios activos')}</small></div>
+    <div class="kpi"><span class="eyebrow">Leads<span class="src">GHL</span></span><b>${t.leads}</b><small class="sem-${sem(t.spend/t.leads,o.leads)}">CPL ${cmoney(t.spend/t.leads)} · objetivo ${cmoney(o.leads)}</small></div>
+    <div class="kpi"><span class="eyebrow">★ CAC real Meta</span><b class="sem-${sem(cac,o.cli)}">${cmoney(cac)}</b><small>${plural(t.cli,'cliente','clientes')} · objetivo ${cmoney(o.cli)}</small></div>
+    <div class="kpi"><span class="eyebrow">Ingresos Meta<span class="src">Stripe</span></span><b>${money(t.rev)}</b><small>ROAS ${NUM.format(r2(roas))}×</small></div>
+    <div class="kpi"><span class="eyebrow">Leads que no cualifican</span><b class="${fant>.5?'sem-crit':fant>.35?'sem-warn':'sem-good'}">${Math.round(fant*100)} %</b><small>Meta cuenta ${NUM.format(r2(infl))}× los leads reales</small></div>
+  </div>
+  <div class="row">
+    <div class="card"><h3>Etapas de la venta: de Meta a cliente</h3><p class="muted" style="font-size:13.5px;margin-top:4px">Coste por etapa sobre lo que vino de Meta. En rojo, el paso que más gente pierde.</p>
+      <div class="cascade">${cascade}</div></div>
+    <div class="card"><h3>Semáforo de costes</h3><p class="muted" style="font-size:13.5px;margin-top:4px">Verde hasta 1,1× el objetivo, ámbar hasta 2,5×, rojo por encima.${svc==='all'?' En "Todos", objetivo ponderado por inversión.':''}</p>
+      <div class="table-wrap" style="margin-top:10px"><table class="num"><thead><tr><th>Métrica</th><th class="r">Objetivo</th><th class="r">Actual</th></tr></thead><tbody>
+      ${[['CPL','leads'],['Coste por cualificado','qual'],['Coste por consultoría','citas'],['Coste por asistencia','shows'],['CAC','cli']].map(([l,k])=>{const c=t[k]?t.spend/t[k]:Infinity;return `<tr><td>${l}</td><td class="r">${cmoney(o[k])}</td><td class="r"><span class="sem-${sem(c,o[k])}"><span class="dot"></span>${cmoney(c)}</span></td></tr>`}).join('')}
+      </tbody></table></div></div>
+  </div>
+  <h3 style="margin-block:22px 6px">Anuncios</h3><p class="muted" style="font-size:13.5px;margin-bottom:10px">Pulsa un anuncio para ver su embudo. Matar: coste por asistencia más de 2,5× el objetivo y CAC más del doble. Escalar: CAC dentro del objetivo.</p>
+  <div class="table-wrap"><table class="num"><thead><tr><th>Anuncio</th><th>Formato</th><th class="r">Inversión</th><th class="r">CPL</th><th class="r">C/consultoría</th><th class="r">C/asistencia</th><th class="r">CAC</th><th class="r">ROAS</th><th class="r">Meta vs CRM</th><th>Decisión</th></tr></thead><tbody>
+  ${ads.map(a=>{const [dl,dc]=decision(a);const oo=OBJ[a.svc];const open=S.mkOpen===a.id;
+    return `<tr class="ad-row" data-ad="${a.id}" aria-expanded="${open}"><td><b>${esc(a.name)}</b><br><small class="muted">${a.camp} › ${esc(a.adset)}</small></td><td>${a.fmt}</td><td class="r">${money(a.spend)}</td><td class="r">${costCell(a.spend,a.leads,oo.leads)}</td><td class="r">${costCell(a.spend,a.citas,oo.citas)}</td><td class="r">${costCell(a.spend,a.shows,oo.shows)}</td><td class="r">${costCell(a.spend,a.cli,oo.cli)}</td><td class="r">${a.cli?NUM.format(r2(a.rev/a.spend))+'×':'—'}</td><td class="r">${NUM.format(r2(a.metaLeads/a.leads))}×</td><td><span class="pill ${dc}">${dl}</span></td></tr>
+    ${open?`<tr class="ad-detail"><td colspan="10"><div class="stages">${STAGES.map(([k,l],i)=>`<span>${l}: <b>${a[k]}</b>${i?' · '+(a[STAGES[i-1][0]]?Math.round(a[k]/a[STAGES[i-1][0]]*100):0)+' %':''} · ${cmoney(a[k]?a.spend/a[k]:Infinity)}</span>`).join('')}<span>Ingresos: <b>${money(a.rev)}</b></span></div></td></tr>`:''}`}).join('')}
+  </tbody></table></div>
+  <div class="row">
+    <div><h3 style="margin-block:22px 10px">Rentabilidad por formato</h3><div class="table-wrap"><table class="num"><thead><tr><th>Formato</th><th class="r">Inversión</th><th class="r">Leads</th><th class="r">CPL</th><th class="r">Clientes</th><th class="r">CAC</th><th class="r">ROAS</th></tr></thead><tbody>
+    ${fmts.map(x=>`<tr><td>${x.f}</td><td class="r">${money(x.spend)}</td><td class="r">${x.leads}</td><td class="r">${cmoney(x.spend/x.leads)}</td><td class="r">${x.cli}</td><td class="r">${cmoney(x.cli?x.spend/x.cli:Infinity)}</td><td class="r">${x.cli?NUM.format(r2(x.rev/x.spend))+'×':'—'}</td></tr>`).join('')}
+    </tbody></table></div></div>
+    <div><h3 style="margin-block:22px 10px">Rentabilidad por servicio</h3><div class="table-wrap"><table class="num"><thead><tr><th>Servicio</th><th class="r">Inversión</th><th class="r">Clientes</th><th class="r">CAC</th><th class="r">Objetivo</th><th class="r">ROAS</th></tr></thead><tbody>
+    ${services.map(x=>`<tr class="${svc===x.s?'is-new':''}"><td>${SVC[x.s]}</td><td class="r">${money(x.spend)}</td><td class="r">${x.cli}</td><td class="r"><span class="sem-${sem(x.cli?x.spend/x.cli:Infinity,OBJ[x.s].cli)}"><span class="dot"></span>${cmoney(x.cli?x.spend/x.cli:Infinity)}</span></td><td class="r">${cmoney(OBJ[x.s].cli)}</td><td class="r">${x.cli?NUM.format(r2(x.rev/x.spend))+'×':'—'}</td></tr>`).join('')}
+    </tbody></table></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Inversión diaria</h3>
+    <div class="chart-wrap" id="chart-daily">${dailySVG(daysAgg)}</div>
+    <div class="table-wrap" style="margin-top:12px"><table class="num"><thead><tr><th>Día</th><th class="r">Inversión</th><th class="r">Leads</th><th class="r">CPL</th><th class="r">Consultorías</th><th class="r">C/consultoría</th><th class="r">Clientes</th><th class="r">CAC</th></tr></thead><tbody>
+    ${last15.map(d=>`<tr><td>${dfmt(d.d,{weekday:'short',day:'numeric',month:'short'})}</td><td class="r">${money(d.spend)}</td><td class="r">${d.leads}</td><td class="r"><span class="sem-${sem(d.leads?d.spend/d.leads:Infinity,o.leads)}">${cmoney(d.leads?d.spend/d.leads:Infinity)}</span></td><td class="r">${d.citas}</td><td class="r">${cmoney(d.citas?d.spend/d.citas:Infinity)}</td><td class="r">${d.cli}</td><td class="r">${cmoney(d.cli?d.spend/d.cli:Infinity)}</td></tr>`).join('')}
+    </tbody></table></div></div>
+  <div class="card" style="margin-top:16px"><h3>Calidad del evento</h3><p class="muted" style="font-size:13.5px;margin-top:4px">Meta aprende del evento al que optimizas. Solo se sube de peldaño con más de 50 eventos por semana varias semanas seguidas.</p>
+    <div class="ladder">
+      <div class="rung on"><b>Lead</b><small>Optimización actual</small><span class="num">${Math.round(wk.reduce((x,y)=>x+y.leads,0)/4)} por semana</span></div>
+      <div class="rung"><b>Consultoría agendada</b><small>Siguiente peldaño</small><span class="num">${avgC} por semana</span></div>
+      <div class="rung"><b>Compra</b><small>Último peldaño</small><span class="num">${Math.round(wk.reduce((x,y)=>x+y.cli,0)/4)} por semana</span></div>
+    </div>
+    <div class="table-wrap" style="margin-top:12px"><table class="num"><thead><tr><th>Semana</th><th class="r">Leads</th><th class="r">Consultorías</th><th class="r">Compras</th></tr></thead><tbody>
+    ${wk.map(x=>`<tr><td>${dfmt(x.from)}–${dfmt(x.to)}</td><td class="r">${x.leads}</td><td class="r"><span class="${x.citas>50?'sem-good':'sem-warn'}">${x.citas}</span></td><td class="r">${x.cli}</td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="note" style="margin-top:12px">${sustained?'Hay más de 50 consultorías por semana de forma sostenida: toca crear una campaña que optimice a consultoría agendada.':'Seguir optimizando a Lead. Para subir a "consultoría agendada" hacen falta más de 50 por semana durante varias semanas; ahora hay '+avgC+'. Mientras tanto, filtrar los leads que no cualifican en la llamada de John o Juani.'}</p></div>`;
+}
+function dailySVG(days){
+  const Wd=1000,H=200,pl=48,pr=12,pt=12,pb=26;const max=Math.max(...days.map(d=>d.spend));const step=max>150?50:max>60?20:10;const yTop=Math.ceil(max/step)*step||step;
+  const y=v=>pt+(H-pt-pb)*(1-v/yTop);const gw=(Wd-pl-pr)/days.length;const bw=Math.max(4,gw-4);
+  let g='';for(let v=0;v<=yTop;v+=step)g+=`<line x1="${pl}" x2="${Wd-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${pl-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v} €</text>`;
+  let b='';days.forEach((d,i)=>{const x=pl+gw*i+2,yy=y(d.spend),h=y(0)-yy,rr=Math.min(3,h);
+    b+=`<path d="M${x} ${y(0)}V${yy+rr}Q${x} ${yy} ${x+rr} ${yy}H${x+bw-rr}Q${x+bw} ${yy} ${x+bw} ${yy+rr}V${y(0)}Z" fill="var(--c-out)"/><rect class="hit" x="${x-1}" y="${pt}" width="${bw+2}" height="${H-pt-pb}" fill="transparent" data-tip="${dfmt(d.d)} · ${money(d.spend)} · ${d.leads} leads · CPL ${cmoney(d.leads?d.spend/d.leads:Infinity)}"/>`;
+    if(i%5===0||i===days.length-1)b+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${dfmt(d.d)}</text>`});
+  return `<svg viewBox="0 0 ${Wd} ${H}" width="100%" role="img" aria-label="Inversión diaria en Meta Ads, últimos 30 días" style="display:block;margin-top:10px">${g}<line x1="${pl}" x2="${Wd-pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line-strong)"/>${b}</svg>`;
+}
+
+/* ---------- Panel: Aula ---------- */
+function pAula(){const t=S.aulaTab||'preview';const b=(id,l)=>`<button data-aulatab="${id}" aria-pressed="${t===id}">${l}</button>`;
+  return `<div class="mk-head"><p class="muted" style="font-size:14px">Eduardo y John ven todo desbloqueado, suben clases y deciden cuándo se abre cada módulo.</p><div class="filters" role="group" aria-label="Aula">${b('preview','Vista previa')}${b('edit','Editar contenido')}${b('progress','Progreso de alumnos')}</div></div>
+  ${t==='preview'?renderAula(null,S.aulaSel):t==='edit'?aulaEditor():aulaProgress()}`}
+function ruleLabel(m){return m.rule==='fecha'?'A los '+m.days+' días del primer pago':RULES[m.rule]}
+function aulaEditor(){const ed=S.ed||{};const c=S.aula.courses.find(x=>x.id===S.edCourse)||S.aula.courses[0];
+  const audBoxes=(aud)=>`<div class="perm-grid">${['ini','adv','hom'].map(a=>`<label><input type="checkbox" name="ed-aud" value="${a}" ${aud.includes(a)?'checked':''}>${COURSES[a].tag}</label>`).join('')}</div>`;
+  const ruleSel=(m)=>`<select id="ed-rule">${Object.keys(RULES).map(k=>`<option value="${k}" ${m.rule===k?'selected':''}>${k==='fecha'?'Por fecha (X días del primer pago)':RULES[k]}</option>`).join('')}</select>`;
+  const lessonForm=(l,mid)=>`<form class="ed-form" id="ed-lesson-form" data-mod="${mid}" data-lesson="${l?l.id:''}" novalidate><div class="field"><label for="ed-lt">Título del capítulo</label><input id="ed-lt" value="${esc(l?l.t:'')}"></div>
+    <div class="field"><label for="ed-ld">Duración (min)</label><input id="ed-ld" type="number" min="1" value="${l?l.dur:10}"></div>
+    <div class="field" style="grid-column:1/-1"><label for="ed-ldesc">Descripción</label><input id="ed-ldesc" value="${esc(l?l.desc:'')}"></div>
+    <div class="field"><label for="ed-lv">Vídeo de la clase</label><input id="ed-lv" type="file" accept="video/*"><small class="muted">${l&&l.video?'Actual: '+esc(l.video):'Sin vídeo todavía'}</small></div>
+    <div class="actions" style="grid-column:1/-1;margin:0"><button class="btn small primary" type="submit">Guardar capítulo</button><button class="btn small" type="button" data-edcancel>Cancelar</button></div></form>`;
+  const delBox=(what,id,label)=>ed.kind==='del'&&ed.id===id?`<div class="note" style="margin-top:8px">¿Borrar ${label}? No se puede deshacer. <button class="btn small" data-eddel="${what}:${id}">Sí, borrar</button> <button class="btn small" data-edcancel>Cancelar</button></div>`:'';
+  return `<div class="toolbar"><div class="filters" role="group" aria-label="Curso">${S.aula.courses.map(x=>`<button data-edcourse="${x.id}" aria-pressed="${c&&x.id===c.id}">${esc(x.t)}</button>`).join('')}<button data-ed="newcourse">+ Nuevo curso</button></div></div>
+  ${ed.kind==='newcourse'?`<form class="card ed-form" id="ed-course-form" novalidate><div class="field"><label for="ed-ct">Nombre del curso</label><input id="ed-ct" value=""></div><div class="field"><label for="ed-cd">Descripción</label><input id="ed-cd" value=""></div><div class="field" style="grid-column:1/-1"><label>Lo ven los alumnos de</label>${audBoxes(['ini','adv'])}</div><div class="actions" style="grid-column:1/-1;margin:0"><button class="btn small primary" type="submit">Crear curso</button><button class="btn small" type="button" data-edcancel>Cancelar</button></div></form>`:''}
+  ${c?`<div class="card" style="margin-top:12px">${ed.kind==='course'&&ed.id===c.id?`<form class="ed-form" id="ed-course-form" data-id="${c.id}" novalidate><div class="field"><label for="ed-ct">Nombre del curso</label><input id="ed-ct" value="${esc(c.t)}"></div><div class="field"><label for="ed-cd">Descripción</label><input id="ed-cd" value="${esc(c.desc)}"></div><div class="field" style="grid-column:1/-1"><label>Lo ven los alumnos de</label>${audBoxes(c.aud)}</div><div class="actions" style="grid-column:1/-1;margin:0"><button class="btn small primary" type="submit">Guardar curso</button><button class="btn small" type="button" data-edcancel>Cancelar</button></div></form>`
+    :`<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start"><div><h2>${esc(c.t)}</h2><p class="muted" style="margin-top:4px">${esc(c.desc)}</p><div class="chips" style="margin-top:8px">${c.aud.map(a=>'<span>'+COURSES[a].tag+'</span>').join('')}</div></div><div class="actions" style="margin:0"><button class="btn small" data-ed="course:${c.id}">Editar curso</button><button class="btn small" data-ed="del:${c.id}">Borrar curso</button></div></div>${delBox('course',c.id,'el curso «'+esc(c.t)+'» con todos sus módulos')}`}</div>
+  ${c.mods.map((m,mi)=>`<div class="card ed-mod" style="margin-top:12px">${ed.kind==='module'&&ed.id===m.id?`<form class="ed-form" id="ed-mod-form" data-id="${m.id}" novalidate><div class="field"><label for="ed-mt">Nombre del módulo</label><input id="ed-mt" value="${esc(m.t)}"></div><div class="field"><label for="ed-rule">Cuándo se abre</label>${ruleSel(m)}</div><div class="field"><label for="ed-days">Días (solo "por fecha")</label><input id="ed-days" type="number" min="0" value="${m.days}"></div><div class="actions" style="grid-column:1/-1;margin:0"><button class="btn small primary" type="submit">Guardar módulo</button><button class="btn small" type="button" data-edcancel>Cancelar</button></div></form>`
+    :`<div class="ed-row"><div><span class="eyebrow">Módulo ${mi+1}</span><h3>${esc(m.t)}</h3><small class="muted">${esc(ruleLabel(m))}</small></div><div class="actions" style="margin:0"><button class="btn small" data-edmove="m:${m.id}:-1" ${mi===0?'disabled':''} aria-label="Subir módulo">↑</button><button class="btn small" data-edmove="m:${m.id}:1" ${mi===c.mods.length-1?'disabled':''} aria-label="Bajar módulo">↓</button><button class="btn small" data-ed="module:${m.id}">Editar</button><button class="btn small" data-ed="del:${m.id}">Borrar</button></div></div>${delBox('module',m.id,'el módulo «'+esc(m.t)+'» y sus capítulos')}`}
+   <ol class="ed-lessons">${m.lessons.map((l,li)=>ed.kind==='lesson'&&ed.id===l.id?`<li>${lessonForm(l,m.id)}</li>`:`<li><div class="ed-row"><span><b>${esc(l.t)}</b> <small class="muted num">· ${l.dur} min · ${l.video?'Vídeo: '+esc(l.video):'<span class="sem-warn">Sin vídeo</span>'}</small></span><span class="actions" style="margin:0"><label class="btn small">Subir vídeo<input type="file" accept="video/*" data-edvideo="${l.id}" hidden></label><button class="btn small" data-edmove="l:${l.id}:-1" ${li===0?'disabled':''} aria-label="Subir capítulo">↑</button><button class="btn small" data-edmove="l:${l.id}:1" ${li===m.lessons.length-1?'disabled':''} aria-label="Bajar capítulo">↓</button><button class="btn small" data-ed="lesson:${l.id}">Editar</button><button class="btn small" data-ed="del:${l.id}">Borrar</button></span></div>${delBox('lesson',l.id,'el capítulo «'+esc(l.t)+'»')}</li>`).join('')}</ol>
+   ${ed.kind==='newlesson'&&ed.id===m.id?lessonForm(null,m.id):`<button class="btn small" data-ed="newlesson:${m.id}">+ Añadir capítulo</button>`}</div>`).join('')}
+  <div class="card" style="margin-top:12px">${ed.kind==='newmodule'?`<form class="ed-form" id="ed-mod-form" data-id="" novalidate><div class="field"><label for="ed-mt">Nombre del módulo</label><input id="ed-mt" value=""></div><div class="field"><label for="ed-rule">Cuándo se abre</label>${ruleSel({rule:'secuencial'})}</div><div class="field"><label for="ed-days">Días (solo "por fecha")</label><input id="ed-days" type="number" min="0" value="7"></div><div class="actions" style="grid-column:1/-1;margin:0"><button class="btn small primary" type="submit">Crear módulo</button><button class="btn small" type="button" data-edcancel>Cancelar</button></div></form>`:`<button class="btn" data-ed="newmodule">+ Añadir módulo a este curso</button>`}</div>`
+  :'<p class="muted">No hay cursos. Crea el primero.</p>'}`}
+function aulaProgress(){const list=S.students.filter(s=>s.course!=='hom').sort((a,b)=>a.name.localeCompare(b.name));const s=ST(S.progStudent)||list[0];if(!s)return '';
+  return `<div class="field" style="max-width:420px"><label for="prog-st">Alumno</label><select id="prog-st">${list.map(x=>`<option value="${x.id}" ${x.id===s.id?'selected':''}>${esc(x.name)} · ${COURSES[x.course].tag}</option>`).join('')}</select></div>
+  ${!hasAula(s)?`<div class="note" style="margin-top:14px">${esc(s.name)} solo ha pagado la reserva: el aula se abrirá sola con su primer pago de la formación.</div>`:
+  coursesFor(s).map(c=>{const pr=courseProg(s,c);return `<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h3>${esc(c.t)}</h3><span class="num muted">${pr.n}/${pr.t} capítulos · ${pr.p} %</span></div>
+   <div class="table-wrap" style="margin-top:10px"><table class="num"><thead><tr><th>Módulo</th><th>Cuándo se abre</th><th>Estado</th><th class="r">Vistos</th><th></th></tr></thead><tbody>
+   ${c.mods.map((m,mi)=>{const ms=modState(s,c,mi);const ov=!!S.unlocks[s.id]?.[m.id];const d=doneSet(s);const n=m.lessons.filter(l=>d.has(l.id)).length;
+    return `<tr><td><b>${esc(m.t)}</b></td><td><small class="muted">${esc(ruleLabel(m))}</small></td><td>${ms.open?`<span class="pill p-good">${ov?'Abierto por tutor':'Abierto'}</span>`:`<span class="pill p-neutral">Bloqueado</span><br><small class="muted">${esc(ms.reason)}</small>`}</td><td class="r">${n}/${m.lessons.length}</td>
+    <td>${ov?`<button class="btn small" data-unlock="${s.id}:${m.id}:0">Quitar desbloqueo</button>`:!ms.open?`<button class="btn small primary" data-unlock="${s.id}:${m.id}:1">Desbloquear</button>`:''}</td></tr>`}).join('')}</tbody></table></div></div>`}).join('')}`}
+/* ---------- Panel: Homologaciones ---------- */
+function pHom(){const list=S.students.filter(s=>s.course==='hom').sort((a,b)=>W(a.week).start.localeCompare(W(b.week).start));const ed=S.homEdit;
+  return `<p class="muted" style="margin-bottom:14px">Cuando CESOL verifica el resultado, regístralo aquí: al alumno le aparece en su cuenta y le llega por correo, con el certificado si ha aprobado o con los motivos si no.</p>
+  <div class="table-wrap"><table class="num"><thead><tr><th>Alumno</th><th>Sesión</th><th>Pago</th><th>Resultado</th><th></th></tr></thead><tbody>
+  ${list.map(s=>{const h=s.hom||{status:'pendiente'};return `<tr class="${isNew(s.id)?'is-new':''}"><td><b>${esc(s.name)}</b><br><small class="muted">${esc(s.email)}</small></td><td>${wkLabel(W(s.week))} · 08:30</td><td><span class="pill ${status(s)[1]}">${status(s)[0]}</span></td>
+   <td>${h.status==='apta'?'<span class="pill p-good">Apto</span><br><small class="muted">'+esc(h.cert)+'</small>':h.status==='no_apta'?'<span class="pill p-crit">No apto</span>'+(h.motivos?'<br><small class="muted">'+esc(h.motivos)+'</small>':''):'<span class="pill p-warn">Pendiente</span>'}</td>
+   <td><button class="btn small" data-homedit="${s.id}">${h.status==='pendiente'?'Registrar resultado':'Cambiar resultado'}</button></td></tr>
+   ${ed===s.id?`<tr class="ad-detail"><td colspan="5"><form id="hom-form" data-id="${s.id}" class="ed-form" novalidate>
+     <div class="field"><label>Resultado</label><div class="perm-grid"><label><input type="radio" name="hom-r" value="apta" ${h.status!=='no_apta'?'checked':''}>Apto</label><label><input type="radio" name="hom-r" value="no_apta" ${h.status==='no_apta'?'checked':''}>No apto</label><label><input type="radio" name="hom-r" value="pendiente" ${h.status==='pendiente'?'':''}>Volver a pendiente</label></div></div>
+     <div class="field"><label for="hom-cert">Certificado de CESOL (PDF, si es apto)</label><input id="hom-cert" type="file" accept=".pdf,image/*"></div>
+     <div class="field" style="grid-column:1/-1"><label for="hom-mot">Motivos (si no es apto, cuando se puedan dar)</label><input id="hom-mot" value="${esc(h.motivos||'')}" placeholder="Por ejemplo: falta de penetración en la raíz de la probeta"></div>
+     <div class="actions" style="grid-column:1/-1;margin:0"><button class="btn small primary" type="submit">Guardar y avisar al alumno</button><button class="btn small" type="button" data-homcancel>Cancelar</button></div></form></td></tr>`:''}`}).join('')}
+  </tbody></table></div>`}
+
+/* ---------- Usuarios y accesos ---------- */
+function pUsuarios(){const u=me();const f=S.uf||{name:'',email:'',type:'equipo',role:'comercial',perms:[...PRESETS.comercial.perms],student:''};
+  const filt=S.ufilter||'equipo';const list=S.users.filter(x=>x.type===filt).sort((a,b)=>(isNew(b.id)-isNew(a.id)));
+  const nE=S.users.filter(x=>x.type==='equipo').length,nA=S.users.filter(x=>x.type==='alumno').length;
+  const free=S.students.filter(st=>!S.users.some(x=>x.student===st.id));
+  const tabName=id=>TABS.find(t=>t[0]===id)[1];
+  return `<p class="muted" style="margin-bottom:14px">Los administradores (Eduardo y John) crean los perfiles y deciden a qué secciones entra cada uno. Los alumnos solo ven su propia área.</p>
+  <div class="card"><h3>Crear un perfil</h3>
+   <form class="user-form" id="f-user" style="margin-top:14px" novalidate>
+    <div class="field"><label for="uf-name">Nombre</label><input id="uf-name" value="${esc(f.name)}" placeholder="Nombre y apellidos"></div>
+    <div class="field"><label for="uf-email">Correo</label><input id="uf-email" type="email" value="${esc(f.email)}" placeholder="nombre@correo.com"></div>
+    <div class="field"><label>Contraseña</label><p class="muted" style="font-size:13px">La crea la propia persona con el enlace que le llega por correo (caduca en 48 h).</p></div>
+    <div class="field"><label for="uf-type">Tipo de perfil</label><select id="uf-type"><option value="equipo" ${f.type==='equipo'?'selected':''}>Miembro del equipo</option><option value="alumno" ${f.type==='alumno'?'selected':''}>Alumno</option></select></div>
+    ${f.type==='equipo'?`<div class="field"><label for="uf-role">Rol</label><select id="uf-role">${Object.entries(PRESETS).map(([k,v])=>`<option value="${k}" ${f.role===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
+    <div class="field" style="grid-column:1/-1"><label>Puede entrar en</label><div class="perm-grid">${TABS.map(([k,l])=>`<label><input type="checkbox" name="uf-perm" value="${k}" ${f.perms.includes(k)?'checked':''}>${l}</label>`).join('')}</div></div>`
+    :`<div class="field" style="grid-column:span 2"><label for="uf-student">Matrícula</label><select id="uf-student"><option value="">Sin matrícula todavía (se matricula al entrar)</option>${free.map(st=>`<option value="${st.id}" ${f.student===st.id?'selected':''}>${esc(st.name)} · ${COURSES[st.course].tag}</option>`).join('')}</select></div>`}
+    <div><button class="btn primary" type="submit">Crear perfil</button></div>
+   </form></div>
+  <div class="toolbar" style="margin-top:18px"><div class="filters" role="group" aria-label="Tipo de perfil"><button data-ufilter="equipo" aria-pressed="${filt==='equipo'}">Equipo (${nE})</button><button data-ufilter="alumno" aria-pressed="${filt==='alumno'}">Alumnos (${nA})</button></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Puede entrar en</th><th>Estado</th><th></th></tr></thead><tbody>
+  ${list.map(x=>{const self=x.id===u.id,lock=x.owner||self;const st=x.student?ST(x.student):null;
+    return `<tr class="${isNew(x.id)?'is-new':''}"><td><b>${esc(x.name)}</b>${self?' <small class="muted">(tú)</small>':''}</td><td class="mono">${esc(x.email)}</td><td>${esc(roleLabel(x))}</td>
+    <td>${x.type==='equipo'?'<div class="chips">'+x.perms.map(p=>'<span>'+tabName(p)+'</span>').join('')+'</div>':'<small class="muted">'+(st?'Su área · '+COURSES[st.course].tag+' · '+wkLabel(W(st.week)):'Su área · sin matrícula todavía')+'</small>'}</td>
+    <td>${!x.hash?'<span class="pill p-warn">Invitación enviada</span>':x.active?'<span class="pill p-good">Activo</span>':'<span class="pill p-neutral">Desactivado</span>'}</td>
+    <td style="white-space:nowrap">${x.type==='equipo'&&!lock?`<button class="btn small" data-uedit="${x.id}">Editar permisos</button> `:''}${!x.hash&&!lock?`<button class="btn small" data-reinvite="${x.id}">Reenviar invitación</button> `:''}${lock?'':`<button class="btn small" data-utoggle="${x.id}">${x.active?'Desactivar':'Activar'}</button>`}</td></tr>
+    ${S.uedit===x.id?`<tr class="ad-detail"><td colspan="6"><div class="perm-grid">${TABS.map(([k,l])=>`<label><input type="checkbox" name="ue-perm" value="${k}" ${x.perms.includes(k)?'checked':''}>${l}</label>`).join('')}</div><div class="actions" style="margin-top:10px"><button class="btn small primary" id="ue-save">Guardar permisos</button><button class="btn small" id="ue-cancel">Cancelar</button></div></td></tr>`:''}`}).join('')}
+  </tbody></table></div>
+  <p class="muted" style="font-size:12.5px;margin-top:10px">Eduardo, como titular, no se puede desactivar. Nadie puede desactivarse a sí mismo.</p>`;
+}
+
+/* ---------- Equipo comercial ---------- */
+function pipeHTML(){const t=agg(META.ads);const d=[['Lead','Deja sus datos en el anuncio','leads'],['Cualificado','Pasa la llamada de cualificación','qual'],['Consultoría agendada','Tiene cita con John o Juani','citas'],['Asiste a consultoría','Se presenta a la cita','shows'],['Cliente','Paga la reserva o la formación','cli']];
+  return `<div class="card" style="margin-bottom:16px"><h3>Etapas de la venta</h3><p class="muted" style="font-size:13.5px;margin-top:4px">Así avanza cada interesado hasta pagar. Son las etapas del pipeline en GoHighLevel, con los leads de Meta de los últimos 30 días; el coste de cada etapa está en Marketing · Meta Ads.</p>
+  <ol class="pipe num">${d.map(([t1,t2,k],i)=>`<li><span class="eyebrow">${i+1}. ${t1}</span><b>${t[k]}</b><small>${t2}${i?' · '+Math.round(t[k]/t[d[i-1][2]]*100)+' % del paso anterior':''}</small></li>`).join('')}</ol></div>`}
+function pComercial(){
+  const u=me(),adm=isAdmin(u),mine=!adm&&CLOSERS.includes(u.name)?u.name:null;
+  const stats=CLOSERS.filter(nm=>!mine||nm===mine).map(nm=>{const st=S.students.filter(s=>s.comercial===nm);const ex=S.closerExtra[nm]||{noShow:0,noSale:0};
+    const ventas=st.length,shows=ventas+ex.noSale,citas=shows+ex.noShow,cash=st.reduce((a,s)=>a+s.paid,0),vendido=st.reduce((a,s)=>a+s.total,0);
+    const com=S.commissions.filter(c=>c.comercial===nm);return {nm,ventas,shows,citas,cash,vendido,pend:com.filter(c=>!c.settled).reduce((a,c)=>a+c.amount,0),tot:com.reduce((a,c)=>a+c.amount,0)}});
+  const list=[...S.commissions].filter(c=>!mine||c.comercial===mine).sort((a,b)=>(a.settled-b.settled)||(isNew(b.student)-isNew(a.student))||b.date.localeCompare(a.date));
+  return `<p class="muted" style="margin-bottom:14px">John Martin lleva el marketing y cierra ventas; Juani cierra ventas. Cada uno cobra el 10 % del ticket vendido: ${money(250)} por Iniciación, ${money(300)} por Avanzada y ${money(60)} por Homologación (sobre 600 € sin IVA). ${adm?'Cuando se le paga una comisión al comercial, se marca como pagada. Si te equivocas, pulsa "Deshacer" y vuelve a "Por pagar".':'Aquí ves tus ventas y el estado de tus comisiones.'}</p>
+  ${pipeHTML()}
+  <div class="closers num">${stats.map(x=>`<div class="closer"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3>${x.nm}</h3><small class="muted">${x.nm==='John Martin'?'Marketing y ventas':'Ventas'}</small></div>
+    <dl><div><dt>Consultorías</dt><dd>${x.citas}</dd></div><div><dt>Asisten</dt><dd>${Math.round(x.shows/x.citas*100)} %</dd></div><div><dt>Cierre</dt><dd>${Math.round(x.ventas/x.shows*100)} %</dd></div>
+    <div><dt>Ventas</dt><dd>${x.ventas}</dd></div><div><dt>Vendido</dt><dd>${money(x.vendido)}</dd></div><div><dt>Comisión por pagar</dt><dd>${money(x.pend)}</dd></div></dl></div>`).join('')}</div>
+  <h3 style="margin-block:22px 10px">Comisiones</h3>
+  <div class="table-wrap"><table class="num"><thead><tr><th>Fecha</th><th>Comercial</th><th>Alumno</th><th>Servicio</th><th class="r">Ticket</th><th class="r">Comisión</th><th>Pago al comercial</th></tr></thead><tbody>
+  ${list.map(c=>{const s=ST(c.student);return `<tr class="${isNew(s.id)?'is-new':''}"><td>${dfmt(c.date)}</td><td>${esc(c.comercial)}</td><td>${esc(s.name)}</td><td>${COURSES[s.course].tag}</td><td class="r">${money(s.total)}</td><td class="r"><b>${money(c.amount)}</b></td><td>${c.settled?'<span class="pill p-good">Pagada</span>'+(adm?' <button class="btn small" data-unsettle="'+S.commissions.indexOf(c)+'">Deshacer</button>':''):'<span class="pill p-warn">Por pagar</span>'+(adm?' <button class="btn small" data-settle="'+S.commissions.indexOf(c)+'">Marcar como pagada</button>':'')}</td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---------- events ---------- */
+function bind(){
+  const on=(id,ev,fn)=>{const el=document.getElementById(id);if(el)el[ev]=fn};
+  document.querySelectorAll('[data-course]').forEach(b=>b.onclick=()=>{S.flow.course=b.dataset.course;S.flow.week=null;S.flow.path=null;save();render()});
+  document.querySelectorAll('[data-week]').forEach(b=>b.onclick=()=>{S.flow.week=b.dataset.week;save();render()});
+  on('to2','onclick',()=>{S.flow.step=2;save();render();window.scrollTo(0,0)});
+  on('back1','onclick',()=>{S.flow.step=1;save();render()});
+  on('back2','onclick',()=>{S.flow.step=2;save();render()});
+  on('f-datos','onsubmit',e=>{e.preventDefault();const g=id=>document.getElementById(id);
+    const req=['d-name','d-dni','d-email','d-tel','d-dir'].find(id=>!g(id).value.trim());
+    if(req){toast('Falta un dato: '+g(req).previousElementSibling.textContent);g(req).focus();return}
+    if(!g('d-cond').checked){toast('Para continuar tienes que aceptar las condiciones de la plaza');return}
+    let pass='';if(!me()){pass=g('d-pass').value;if(!passOk(pass)){toast('Contraseña poco segura. '+PASS_RULE);g('d-pass').focus();return}
+      if(S.users.some(x=>x.email.toLowerCase()===g('d-email').value.trim().toLowerCase())){toast('Ya existe una cuenta con ese correo. Inicia sesión para matricularte.');return}}
+    S.flow.datos={pass,name:g('d-name').value.trim(),dni:g('d-dni').value.trim(),email:g('d-email').value.trim(),tel:g('d-tel').value.trim(),dir:g('d-dir').value.trim(),aloj:!!g('d-aloj')?.checked,wa:g('d-wa').checked};
+    S.flow.step=3;save();render();window.scrollTo(0,0)});
+  document.querySelectorAll('input[name="path"]').forEach(r=>r.onchange=()=>{S.flow.path=r.value;save();render()});
+  document.querySelectorAll('input[name="plan"]').forEach(r=>r.onchange=()=>{S.flow.plan=r.value;save();render()});
+  document.querySelectorAll('input[name="plan2"]').forEach(r=>r.onchange=()=>{S.flow.plan2=r.value;save();render()});
+  on('pay-start','onchange',e=>{S.flow.payStart=e.target.value;save()});
+  on('f-pay','onsubmit',e=>{e.preventDefault();const b=$('#paybtn');b.disabled=true;b.innerHTML='<span class="spinner"></span>Procesando';
+    setTimeout(()=>{
+      const f=S.flow,w=W(f.week);if(taken(w.id)>=w.cap){toast('Esa fecha se acaba de llenar. Elige otra.');f.step=1;f.week=null;save();render();return}
+      const c=COURSES[f.course],d=f.datos;const months=monthsAvail(w);let plan=f.plan||'unico';if(plan==='cuotas'&&months<2)plan='unico';
+      const path=c.kind==='curso'?(f.path||'reserva'):'ahora';const id='n'+Date.now();
+      const s={id,name:d.name,email:d.email,dni:d.dni,dir:d.dir,tel:d.tel,course:c.id,week:w.id,comercial:'John Martin',mod:path==='reserva'?'reserva':plan,total:c.price,paid:0,progress:0,aloj:d.aloj,created:iso(TODAY)};
+      S.students.push(s);let k=0;const pay=(amount,concept,method)=>{const pid='p'+Date.now()+'-'+(k++);S.payments.push({id:pid,date:iso(TODAY),student:id,amount,concept,method});s.paid=r2(s.paid+amount);S.newIds.push(pid)};
+      if(path==='reserva'){pay(RESERVA,'Reserva de plaza','Stripe · tarjeta');s.payStart=f.payStart;issueInvoice(s,'Reserva de plaza (a cuenta)',RESERVA)}
+      else if(plan==='unico'){pay(c.price,c.kind==='hom'?'Homologación completa':'Formación completa','Stripe · tarjeta');issueInvoice(s,c.kind==='hom'?'Homologación CESOL':'Formación completa',c.price)}
+      else if(plan==='klarna'){pay(c.price,'Pago con Klarna (3 plazos)','Stripe · Klarna');issueInvoice(s,(c.kind==='hom'?'Homologación CESOL':'Formación completa')+' (Klarna)',c.price)}
+      else{const q=r2(c.price/months);pay(q,'Cuota 1 de '+months,'Cuotas Torch · tarjeta');issueInvoice(s,'Cuota 1 de '+months,q);
+        for(let j=2;j<=months;j++)S.scheduled.push({student:id,date:iso(addMonths(TODAY,j-1)),amount:j===months?r2(c.price-q*(months-1)):q,concept:'Cuota '+j+' de '+months})}
+      S.commissions.push({student:id,comercial:'John Martin',amount:comOf(c),date:iso(TODAY),settled:false});
+      const cu=me();if(cu){cu.student=id}else{const nu={id:'u-'+id,name:d.name,email:d.email,type:'alumno',student:id,active:true};setPass(nu,d.pass);d.pass='';S.users.push(nu);S.session=nu.id;S.lastActive=Date.now();S.newIds.push(nu.id);sendMail(d.email,'welcome',{name:d.name})}
+      S.newIds.push(id);S.me=id;f.step=4;f.plan2='unico';f.showPay=false;save();render();window.scrollTo(0,0);
+      toast((path==='reserva'?'Plaza reservada.':'Pago recibido.')+' Te hemos enviado la factura y tus datos de acceso por correo.');
+    },1200)});
+  on('area-start','onchange',e=>{const s=ST(S.me);if(s&&e.target.value){s.payStart=e.target.value;save();render();toast('Fecha de inicio de pago actualizada')}});
+  on('showpay','onclick',()=>{S.flow.showPay=true;save();render()});
+  on('payrest','onclick',e=>{const s=ST(S.me);const rest=r2(s.total-s.paid);let p=S.flow.plan2||'unico';const btn=e.currentTarget;const n=+btn.dataset.months;if(p==='cuotas'&&n<2)p='unico';btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Procesando';
+    setTimeout(()=>{const pid='p'+Date.now();
+      if(p==='unico'||p==='klarna'){S.payments.push({id:pid,date:iso(TODAY),student:s.id,amount:rest,concept:p==='unico'?'Pago único del resto':'Resto con Klarna (3 plazos)',method:p==='unico'?'Stripe · tarjeta':'Stripe · Klarna'});s.paid=r2(s.paid+rest);s.mod=p;issueInvoice(s,p==='unico'?'Resto de la formación':'Resto de la formación (Klarna)',rest)}
+      else{const q=r2(rest/n);S.payments.push({id:pid,date:iso(TODAY),student:s.id,amount:q,concept:'Cuota 1 de '+n,method:'Cuotas Torch · tarjeta'});s.paid=r2(s.paid+q);s.mod='cuotas';issueInvoice(s,'Cuota 1 de '+n,q);
+        for(let j=2;j<=n;j++)S.scheduled.push({student:s.id,date:iso(addMonths(TODAY,j-1)),amount:j===n?r2(rest-q*(n-1)):q,concept:'Cuota '+j+' de '+n})}
+      S.newIds.push(pid);save();render();toast(p==='cuotas'?'Cuotas activadas. La primera ya está cobrada.':'Pago completado. Nueva factura emitida.')},1100)});
+  document.querySelectorAll('[data-inv]').forEach(b=>b.onclick=()=>showInvoice(b.dataset.inv));
+  on('wa','onclick',()=>toast('En la versión real se abre el enlace de invitación a la comunidad de Torch Institute.'));
+  on('f-login','onsubmit',e=>{e.preventDefault();const em=$('#l-email').value.trim().toLowerCase(),pw=$('#l-pass').value;S.lEmail=em;
+    const err=$('#l-err');const fl=S.fails[em]||{n:0,until:0};
+    if(fl.until>Date.now()){err.textContent='Demasiados intentos fallidos. Espera 15 minutos o recupera tu contraseña.';err.hidden=false;return}
+    const cand=S.users.find(x=>x.email.toLowerCase()===em);const u=cand&&checkPass(cand,pw)?cand:null;
+    if(!u){fl.n++;if(fl.n>=LOCK_N){fl.until=Date.now()+LOCK_MS;fl.n=0}S.fails[em]=fl;save();err.textContent=fl.until>Date.now()?'Demasiados intentos fallidos. Espera 15 minutos o recupera tu contraseña.':'Correo o contraseña incorrectos.';err.hidden=false;return}
+    delete S.fails[em];S.lastActive=Date.now();
+    if(!u.active){err.textContent='Este acceso está desactivado. Habla con Eduardo o con John.';err.hidden=false;return}
+    S.session=u.id;S.tab='resumen';S.stuView='area';S.aulaSel={};S.ed=null;S.flow={step:1,course:'ini',week:null};save();render();window.scrollTo(0,0);toast('Hola, '+u.name.split(' ')[0]+'.')});
+  document.querySelectorAll('[data-demo-email]').forEach(b=>b.onclick=()=>{$('#l-email').value=b.dataset.demoEmail;$('#l-pass').value=b.dataset.demoPass;$('#l-pass').focus()});
+  on('to-forgot','onclick',()=>{S.view='forgot';S.forgotSent=null;save();render()});
+  on('back-login','onclick',()=>{S.view='login';S.forgotSent=null;save();render()});
+  on('open-mail','onclick',()=>showMailbox());
+  on('f-forgot','onsubmit',e=>{e.preventDefault();const em=$('#fg-email').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){toast('Escribe un correo válido');return}
+    const u=S.users.find(x=>x.email.toLowerCase()===em.toLowerCase()&&x.active);
+    if(u){const token=randHex(24);S.tokens.push({token,user:u.id,kind:'reset',exp:Date.now()+RESET_MS,used:false});sendMail(u.email,'reset',{token})}
+    S.forgotSent=em;S.lEmail=em;save();render()});
+  on('f-reset','onsubmit',e=>{e.preventDefault();const k=validToken(S.resetToken);const err=$('#rs-err');if(!k){render();return}
+    const a=$('#rs-1').value,b=$('#rs-2').value;if(!passOk(a)){err.textContent='Contraseña poco segura. '+PASS_RULE;err.hidden=false;return}if(a!==b){err.textContent='Las dos contraseñas no coinciden.';err.hidden=false;return}
+    const u=S.users.find(x=>x.id===k.user);setPass(u,a);S.tokens.forEach(t=>{if(t.user===u.id)t.used=true});delete S.fails[u.email.toLowerCase()];sendMail(u.email,'changed',{});
+    S.view='login';S.lEmail=u.email;S.resetToken=null;save();render();toast('Contraseña guardada. Ya puedes entrar.')});
+  const toMat=()=>{S.view='matricula';S.flow={step:1,course:'ini',week:null};save();render();window.scrollTo(0,0)};
+  on('to-matricula','onclick',toMat);
+  const toLogin=()=>{S.view='login';save();render();window.scrollTo(0,0)};on('to-login','onclick',toLogin);on('to-login2','onclick',toLogin);
+  on('logout','onclick',()=>{S.session=null;S.me=null;S.view='login';S.flow={step:1,course:'ini',week:null};save();render();window.scrollTo(0,0);toast('Sesión cerrada')});
+  document.querySelectorAll('[data-unsettle]').forEach(b=>b.onclick=()=>{if(!isAdmin(me())){toast('No tienes permiso');return}S.commissions[+b.dataset.unsettle].settled=false;save();render();toast('Comisión devuelta a "Por pagar"')});
+  // usuarios
+  const readUF=()=>{const g=id=>document.getElementById(id);if(!g('uf-name'))return;S.uf={name:g('uf-name').value,email:g('uf-email').value,type:g('uf-type').value,role:g('uf-role')?.value||'comercial',
+    perms:[...document.querySelectorAll('input[name="uf-perm"]:checked')].map(x=>x.value),student:g('uf-student')?.value||''}};
+  on('uf-type','onchange',()=>{readUF();save();render()});
+  on('uf-role','onchange',()=>{readUF();S.uf.perms=[...PRESETS[S.uf.role].perms];save();render()});
+  document.querySelectorAll('input[name="uf-perm"]').forEach(x=>x.onchange=()=>{readUF();S.uf.role='custom';save();render()});
+  on('f-user','onsubmit',e=>{e.preventDefault();if(!isAdmin(me())){toast('No tienes permiso');return}readUF();const f=S.uf;
+    if(!f.name.trim()||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())){toast('Pon un nombre y un correo válido');return}
+    if(S.users.some(x=>x.email.toLowerCase()===f.email.trim().toLowerCase())){toast('Ya hay un perfil con ese correo');return}
+    if(f.type==='equipo'&&!f.perms.length){toast('Marca al menos una sección a la que pueda entrar');return}
+    const nu={id:'u'+Date.now(),name:f.name.trim(),email:f.email.trim(),type:f.type,active:true};
+    if(f.type==='equipo'){nu.role=f.role;nu.perms=[...f.perms];nu.title=PRESETS[f.role].label}else{nu.student=f.student||null}
+    S.users.push(nu);const token=randHex(24);S.tokens.push({token,user:nu.id,kind:'invite',exp:Date.now()+INVITE_MS,used:false});sendMail(nu.email,'invite',{name:nu.name,by:me().name,role:nu.type==='equipo'?nu.title:'alumno',token});
+    S.newIds.push(nu.id);S.ufilter=f.type;S.uf=null;save();render();toast('Perfil creado. Le hemos enviado un correo para que cree su contraseña.')});
+  document.querySelectorAll('[data-reinvite]').forEach(b=>b.onclick=()=>{if(!isAdmin(me()))return;const x=S.users.find(y=>y.id===b.dataset.reinvite);S.tokens.forEach(t=>{if(t.user===x.id)t.used=true});const token=randHex(24);S.tokens.push({token,user:x.id,kind:'invite',exp:Date.now()+INVITE_MS,used:false});sendMail(x.email,'invite',{name:x.name,by:me().name,role:x.type==='equipo'?x.title:'alumno',token});save();toast('Invitación reenviada a '+x.email)});
+  document.querySelectorAll('[data-ufilter]').forEach(b=>b.onclick=()=>{S.ufilter=b.dataset.ufilter;S.uedit=null;save();render()});
+  document.querySelectorAll('[data-uedit]').forEach(b=>b.onclick=()=>{S.uedit=S.uedit===b.dataset.uedit?null:b.dataset.uedit;save();render()});
+  document.querySelectorAll('[data-utoggle]').forEach(b=>b.onclick=()=>{const x=S.users.find(y=>y.id===b.dataset.utoggle);if(!isAdmin(me())||x.owner||x.id===S.session){toast('No tienes permiso');return}x.active=!x.active;save();render();toast(x.active?'Acceso activado':'Acceso desactivado. Puedes volver a activarlo cuando quieras.')});
+  on('ue-save','onclick',()=>{const x=S.users.find(y=>y.id===S.uedit);if(!isAdmin(me())||x.owner||x.id===S.session){toast('No tienes permiso');return}const pr=[...document.querySelectorAll('input[name="ue-perm"]:checked')].map(y=>y.value);
+    if(!pr.length){toast('Deja al menos una sección marcada');return}x.perms=pr;x.role=Object.keys(PRESETS).find(k=>k!=='custom'&&PRESETS[k].perms.length===pr.length&&PRESETS[k].perms.every(p=>pr.includes(p)))||'custom';x.title=x.owner?x.title:(x.name==='John Martin'?x.title:PRESETS[x.role].label);S.uedit=null;save();render();toast('Permisos guardados')});
+  on('ue-cancel','onclick',()=>{S.uedit=null;save();render()});
+  document.querySelectorAll('[data-stuview]').forEach(b=>b.onclick=()=>{S.stuView=b.dataset.stuview;S.aulaSel={};save();render();window.scrollTo(0,0)});
+  document.querySelectorAll('[data-acourse]').forEach(b=>b.onclick=()=>{S.aulaSel={course:b.dataset.acourse||null};save();render();window.scrollTo(0,0)});
+  document.querySelectorAll('[data-alesson]').forEach(b=>b.onclick=()=>{S.aulaSel.lesson=b.dataset.alesson;save();render()});
+  document.querySelectorAll('[data-adone]').forEach(b=>b.onclick=()=>{const u=me();if(!u||u.type!=='alumno')return;const s=ST(u.student);if(!hasAula(s))return;const id=b.dataset.adone;const arr=S.done[s.id]=S.done[s.id]||[];const i=arr.indexOf(id);
+    if(i>=0){arr.splice(i,1);toast('Capítulo marcado como no visto')}else{arr.push(id);toast('Capítulo completado')}S.aulaSel.lesson=id;save();render()});
+  document.querySelectorAll('[data-aulatab]').forEach(b=>b.onclick=()=>{S.aulaTab=b.dataset.aulatab;S.ed=null;S.aulaSel={};save();render()});
+  const admOnly=()=>{if(!isAdmin(me())){toast('No tienes permiso');return false}return true};
+  document.querySelectorAll('[data-edcourse]').forEach(b=>b.onclick=()=>{S.edCourse=b.dataset.edcourse;S.ed=null;save();render()});
+  document.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.ed.split(':');S.ed={kind:k,id};save();render()});
+  document.querySelectorAll('[data-edcancel]').forEach(b=>b.onclick=()=>{S.ed=null;save();render()});
+  const curCourse=()=>S.aula.courses.find(x=>x.id===S.edCourse)||S.aula.courses[0];
+  const findMod=id=>{for(const c of S.aula.courses){const m=c.mods.find(x=>x.id===id);if(m)return{c,m}}return null};
+  const findLes=id=>{for(const c of S.aula.courses)for(const m of c.mods){const l=m.lessons.find(x=>x.id===id);if(l)return{c,m,l}}return null};
+  const uid=p=>p+Date.now().toString(36)+randHex(2);
+  on('ed-course-form','onsubmit',e=>{e.preventDefault();if(!admOnly())return;const t=$('#ed-ct').value.trim(),d=$('#ed-cd').value.trim(),aud=[...document.querySelectorAll('input[name="ed-aud"]:checked')].map(x=>x.value);
+    if(!t){toast('Ponle nombre al curso');return}if(!aud.length){toast('Marca qué alumnos lo ven');return}
+    const id=e.target.dataset.id;if(id){const c=S.aula.courses.find(x=>x.id===id);Object.assign(c,{t,desc:d,aud})}else{const c={id:uid('c-'),t,desc:d,aud,mods:[]};S.aula.courses.push(c);S.edCourse=c.id}
+    S.ed=null;save();render();toast('Curso guardado')});
+  on('ed-mod-form','onsubmit',e=>{e.preventDefault();if(!admOnly())return;const t=$('#ed-mt').value.trim(),rule=$('#ed-rule').value,days=Math.max(0,parseInt($('#ed-days').value)||0);if(!t){toast('Ponle nombre al módulo');return}
+    const id=e.target.dataset.id;if(id){Object.assign(findMod(id).m,{t,rule,days})}else{curCourse().mods.push({id:uid('m'),t,rule,days,lessons:[]})}S.ed=null;save();render();toast('Módulo guardado')});
+  on('ed-lesson-form','onsubmit',e=>{e.preventDefault();if(!admOnly())return;const t=$('#ed-lt').value.trim(),dur=Math.max(1,parseInt($('#ed-ld').value)||1),desc=$('#ed-ldesc').value.trim(),file=$('#ed-lv').files[0];if(!t){toast('Ponle título al capítulo');return}
+    const lid=e.target.dataset.lesson;let l;if(lid){l=findLes(lid).l;Object.assign(l,{t,dur,desc})}else{l={id:uid('l'),t,dur,desc,video:null};findMod(e.target.dataset.mod).m.lessons.push(l)}
+    if(file){l.video=file.name;try{BLOBS[l.id]=URL.createObjectURL(file)}catch(err){}}S.ed=null;save();render();toast('Capítulo guardado'+(file?' con su vídeo':''))});
+  document.querySelectorAll('[data-edvideo]').forEach(inp=>inp.onchange=()=>{if(!admOnly())return;const f=inp.files[0];if(!f)return;const x=findLes(inp.dataset.edvideo);x.l.video=f.name;try{BLOBS[x.l.id]=URL.createObjectURL(f)}catch(err){}save();render();toast('Vídeo subido: '+f.name)});
+  document.querySelectorAll('[data-edmove]').forEach(b=>b.onclick=()=>{if(!admOnly())return;const [k,id,dir]=b.dataset.edmove.split(':');const d=+dir;let arr,i;
+    if(k==='m'){const x=findMod(id);arr=x.c.mods;i=arr.indexOf(x.m)}else{const x=findLes(id);arr=x.m.lessons;i=arr.indexOf(x.l)}const j=i+d;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];save();render()});
+  document.querySelectorAll('[data-eddel]').forEach(b=>b.onclick=()=>{if(!admOnly())return;const [k,id]=b.dataset.eddel.split(':');
+    if(k==='course'){S.aula.courses=S.aula.courses.filter(x=>x.id!==id);S.edCourse=null}else if(k==='module'){const x=findMod(id);x.c.mods=x.c.mods.filter(m=>m.id!==id)}else{const x=findLes(id);x.m.lessons=x.m.lessons.filter(l=>l.id!==id)}
+    S.ed=null;save();render();toast('Borrado')});
+  on('prog-st','onchange',e=>{S.progStudent=e.target.value;save();render()});
+  document.querySelectorAll('[data-unlock]').forEach(b=>b.onclick=()=>{if(!admOnly())return;const [sid,mid,v]=b.dataset.unlock.split(':');S.unlocks[sid]=S.unlocks[sid]||{};if(v==='1')S.unlocks[sid][mid]=true;else delete S.unlocks[sid][mid];save();render();toast(v==='1'?'Módulo desbloqueado para este alumno':'Desbloqueo quitado: vuelve a su regla')});
+  document.querySelectorAll('[data-homedit]').forEach(b=>b.onclick=()=>{S.homEdit=S.homEdit===b.dataset.homedit?null:b.dataset.homedit;save();render()});
+  document.querySelectorAll('[data-homcancel]').forEach(b=>b.onclick=()=>{S.homEdit=null;save();render()});
+  on('hom-form','onsubmit',e=>{e.preventDefault();if(!admOnly())return;const s=ST(e.target.dataset.id);const r=(document.querySelector('input[name="hom-r"]:checked')||{}).value;const f=$('#hom-cert').files[0];const mot=$('#hom-mot').value.trim();const fecha=dfmt(W(s.week).start,{day:'numeric',month:'long'});
+    if(r==='apta'){const cert=f?f.name:'certificado-cesol-'+s.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z]+/g,'-')+'.pdf';s.hom={status:'apta',cert,motivos:''};sendMail(s.email,'hom_ok',{name:s.name,fecha,cert});toast('Resultado guardado. Le hemos enviado el certificado por correo.')}
+    else if(r==='no_apta'){s.hom={status:'no_apta',motivos:mot};sendMail(s.email,'hom_ko',{name:s.name,fecha,motivos:mot});toast('Resultado guardado y comunicado al alumno.')}
+    else{s.hom={status:'pendiente'};toast('Resultado devuelto a pendiente.')}
+    S.homEdit=null;save();render()});
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;save();render()});
+  document.querySelectorAll('[data-svc]').forEach(b=>b.onclick=()=>{S.mkSvc=b.dataset.svc;S.mkOpen=null;save();render()});
+  document.querySelectorAll('[data-ad]').forEach(tr=>tr.onclick=()=>{S.mkOpen=S.mkOpen===tr.dataset.ad?null:tr.dataset.ad;save();render()});
+  on('q','oninput',e=>{S.q=e.target.value;const pos=e.target.selectionStart;render();const q=$('#q');q.focus();q.setSelectionRange(pos,pos)});
+  document.querySelectorAll('[data-settle]').forEach(b=>b.onclick=()=>{if(!isAdmin(me())){toast('No tienes permiso');return}S.commissions[+b.dataset.settle].settled=true;save();render();toast('Comisión marcada como pagada al comercial')});
+  on('f-exp','onsubmit',e=>{e.preventDefault();const g=id=>document.getElementById(id);const amt=parseFloat(g('e-amount').value);
+    if(!g('e-concept').value.trim()||!(amt>0)){toast('Pon un concepto y un importe mayor que 0');return}
+    const id='e'+Date.now();S.expenses.push({id,date:g('e-date').value||iso(TODAY),concept:g('e-concept').value.trim(),cat:g('e-cat').value,amount:amt,week:g('e-week').value,ticket:g('e-file').files[0]?.name||''});
+    S.newIds.push(id);save();render();toast('Gasto añadido. El margen ya está actualizado.')});
+  on('exp-csv','onclick',()=>{const f2=v=>(Math.round(v*100)/100).toFixed(2).replace('.',',');
+    const rows=[['tipo','fecha','concepto','base','iva','total']];
+    S.payments.filter(p=>monthKey(p.date)===THIS_M).forEach(p=>rows.push(['ingreso',p.date,(ST(p.student)?.name||'')+' - '+p.concept,f2(p.amount/1.21),f2(p.amount-p.amount/1.21),f2(p.amount)]));
+    S.expenses.filter(x=>monthKey(x.date)===THIS_M).forEach(x=>rows.push(['gasto',x.date,x.concept+' ('+x.cat+')',f2(x.amount/1.21),f2(x.amount-x.amount/1.21),f2(x.amount)]));
+    const ms=metaSpendMonth(THIS_M);rows.push(['gasto',iso(TODAY),'Publicidad Meta Ads (mes en curso)',f2(ms/1.21),f2(ms-ms/1.21),f2(ms)]);
+    const csv=rows.map(r=>r.map(c=>/[;"]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c).join(';')).join('\n');
+    $('#csv-out').innerHTML='<textarea id="csv-text" readonly aria-label="CSV para el gestor" style="margin-top:12px">'+esc(csv)+'</textarea><div class="actions" style="margin-top:8px"><button class="btn small" id="csv-copy">Copiar</button><span class="muted" style="font-size:13px">'+plural(rows.length-1,'movimiento','movimientos')+'. IVA calculado al 21 % para la demo.</span></div>';
+    $('#csv-copy').onclick=()=>{const t=$('#csv-text');const fb=()=>{t.select();toast('Selecciona y copia con Ctrl+C')};try{navigator.clipboard.writeText(t.value).then(()=>toast('CSV copiado'),fb)}catch(err){fb()}}});
+  ['chart','chart-daily'].forEach(cid=>{const ch=document.getElementById(cid);
+    if(ch){let tip;ch.querySelectorAll('.hit').forEach(h=>{h.onmouseenter=()=>{tip=document.createElement('div');tip.className='tip num';tip.textContent=h.dataset.tip;ch.appendChild(tip);const r=h.getBoundingClientRect(),cr=ch.getBoundingClientRect();tip.style.left=Math.min(cr.width-80,Math.max(80,r.left-cr.left+r.width/2))+'px';tip.style.top=(r.top-cr.top+18)+'px'};h.onmouseleave=()=>{tip&&tip.remove()}})}});
+}
+const boot=()=>{if(S._progress){seedProgress();delete S._progress;save()}render()};
+if(window.__gateOk)boot();else window.__boot=boot;
+})();
+</script>
+
+</body>
+</html>
